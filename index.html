@@ -342,9 +342,8 @@ body { margin: 0 !important; padding: 0 !important; }
                 <div style="font-size:7px;color:#1e40af;"><strong>Submission Instructions:</strong> Once completed, email to: nigelbishop@live.co.uk</div>
               </div>
             </div>
-            </div>
-</body>
-</html>
+</div>
+</div>
         `;
       };
 
@@ -353,23 +352,39 @@ body { margin: 0 !important; padding: 0 !important; }
         
         const element = document.createElement('div');
         element.innerHTML = generatePDFContent();
-        element.style.position = 'absolute';
-        element.style.left = '-9999px';
+        element.style.width = '210mm';
+        element.style.position = 'fixed';
+        element.style.left = '0';
         element.style.top = '0';
+        element.style.zIndex = '-1';
+        element.style.visibility = 'hidden';
         document.body.appendChild(element);
 
+        // Wait for element to be rendered
+        await new Promise(resolve => setTimeout(resolve, 100));
+
         const opt = {
-          margin: 0,
+          margin: [5, 5, 5, 5],
           filename: `Rayner_Application_${formData.name.replace(/\s+/g, '_') || 'Form'}_2026.pdf`,
-          image: { type: 'jpeg', quality: 0.95 },
+          image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { 
-            scale: 1.5,
+            scale: 2,
+            useCORS: true,
             logging: false,
-            letterRendering: true,
-            useCORS: true
+            width: 794,
+            windowWidth: 794
           },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak: { mode: 'avoid-all' }
+          jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait'
+          },
+          pagebreak: { 
+            mode: ['avoid-all', 'css', 'legacy'],
+            before: '.page-break-before',
+            after: '.page-break-after',
+            avoid: '.no-break'
+          }
         };
 
         try {
