@@ -10,7 +10,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    body { margin: 0; padding: 0; }
+    body { margin: 0; padding: 0; background: #f9fafb; }
   </style>
 </head>
 <body>
@@ -152,8 +152,8 @@
             <div style="margin-bottom: 30px;">
               <h3 style="color: #1e3a8a; font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px;">PLACEMENT & FUNDING</h3>
               <p><strong>Team:</strong> ${formData.teamName}</p>
-              <p><strong>Team Contact:</strong> ${formData.teamContact}</p>
-              <p><strong>Team Location:</strong> ${formData.teamLocation}</p>
+              <p><strong>Contact:</strong> ${formData.teamContact}</p>
+              <p><strong>Location:</strong> ${formData.teamLocation}</p>
               <p><strong>Accommodation Provided:</strong> ${formData.accommodationProvided} - ${formData.accommodationProvidedInfo}</p>
               <p><strong>Accommodation Charged:</strong> ${formData.accommodationCharged} - ${formData.accommodationChargedInfo}</p>
               <p><strong>Daily Food:</strong> ${formData.dailyFood} - ${formData.dailyFoodInfo}</p>
@@ -200,6 +200,18 @@
         { name: 'In Your Own Words', id: 3 }
       ];
 
+      const fundingQuestions = [
+        ['accommodationProvided', 'accommodationProvidedInfo', 'Is your accommodation provided?'],
+        ['accommodationCharged', 'accommodationChargedInfo', 'Is your accommodation charged? How much?'],
+        ['accommodationUpkeep', 'accommodationUpkeepInfo', 'Do you contribute to accommodation upkeep?'],
+        ['dailyFood', 'dailyFoodInfo', 'Do you pay for daily food? How much?'],
+        ['travelArrangement', 'travelArrangementInfo', 'How will you travel to races? Who pays?'],
+        ['equipment', 'equipmentInfo', 'Do you receive equipment from team?'],
+        ['wageSalary', 'wageSalaryInfo', 'Do you receive a wage/salary? How much per annum?'],
+        ['repayment', 'repaymentInfo', 'Expected to repay any support?'],
+        ['otherSupport', 'otherSupportInfo', 'Any other income or support sources?']
+      ];
+
       return (
         <div className="min-h-screen bg-gray-50 p-4">
           <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
@@ -227,36 +239,512 @@
             </div>
 
             <div className="p-6">
-              {/* Form sections - abbreviated for length */}
               {currentSection === 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-bold text-blue-900">PERSONAL INFORMATION</h3>
-                  <input type="text" placeholder="Name" value={formData.name} onChange={(e) => updateField('name', e.target.value)} className="w-full px-3 py-2 border rounded" />
-                  {/* Add all other personal info fields here */}
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-blue-900 mb-4">PERSONAL INFORMATION</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="md:col-span-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => updateField('name', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth *</label>
+                      <input
+                        type="date"
+                        value={formData.dob}
+                        onChange={(e) => updateField('dob', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Place of Birth</label>
+                      <input
+                        type="text"
+                        value={formData.pob}
+                        onChange={(e) => updateField('pob', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Address *</label>
+                    <textarea
+                      value={formData.address}
+                      onChange={(e) => updateField('address', e.target.value)}
+                      rows="3"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Home Telephone</label>
+                      <input
+                        type="tel"
+                        value={formData.homeTelephone}
+                        onChange={(e) => updateField('homeTelephone', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Mobile *</label>
+                      <input
+                        type="tel"
+                        value={formData.mobile}
+                        onChange={(e) => updateField('mobile', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => updateField('email', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Current Team</label>
+                      <input
+                        type="text"
+                        value={formData.currentTeam}
+                        onChange={(e) => updateField('currentTeam', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">BC Membership No</label>
+                      <input
+                        type="text"
+                        value={formData.bcMembership}
+                        onChange={(e) => updateField('bcMembership', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">UCI Number</label>
+                      <input
+                        type="text"
+                        value={formData.uciNumber}
+                        onChange={(e) => updateField('uciNumber', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">BC Ranking Category</label>
+                      <input
+                        type="text"
+                        value={formData.bcRanking}
+                        onChange={(e) => updateField('bcRanking', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">World Ranking</label>
+                      <input
+                        type="text"
+                        value={formData.worldRanking}
+                        onChange={(e) => updateField('worldRanking', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Coach Name</label>
+                      <input
+                        type="text"
+                        value={formData.coachName}
+                        onChange={(e) => updateField('coachName', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Coach Contact</label>
+                      <input
+                        type="text"
+                        value={formData.coachContact}
+                        onChange={(e) => updateField('coachContact', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Agent Name</label>
+                      <input
+                        type="text"
+                        value={formData.agentName}
+                        onChange={(e) => updateField('agentName', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Agent Contact</label>
+                      <input
+                        type="text"
+                        value={formData.agentContact}
+                        onChange={(e) => updateField('agentContact', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">National Insurance No</label>
+                      <input
+                        type="text"
+                        value={formData.nationalInsurance}
+                        onChange={(e) => updateField('nationalInsurance', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Passport No</label>
+                      <input
+                        type="text"
+                        value={formData.passportNo}
+                        onChange={(e) => updateField('passportNo', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Passport Expiry</label>
+                      <input
+                        type="date"
+                        value={formData.passportExpiry}
+                        onChange={(e) => updateField('passportExpiry', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Second Nationality?</label>
+                    <input
+                      type="text"
+                      value={formData.secondNationality}
+                      onChange={(e) => updateField('secondNationality', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">EU Arrangements</label>
+                    <textarea
+                      value={formData.euArrangements}
+                      onChange={(e) => updateField('euArrangements', e.target.value)}
+                      rows="2"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
                 </div>
               )}
-              
-              {/* Add other sections similarly */}
+
+              {currentSection === 1 && (
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-blue-900 mb-4">RACING ACHIEVEMENTS - Last 12 Months</h3>
+                  <p className="text-sm text-gray-600 mb-4">Best 10 results in order of success</p>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border border-gray-300">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
+                          <th className="border border-gray-300 px-4 py-2 text-left">Competition</th>
+                          <th className="border border-gray-300 px-4 py-2 text-left">Category</th>
+                          <th className="border border-gray-300 px-4 py-2 text-left">Placing</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {formData.recentResults.map((result, index) => (
+                          <tr key={index}>
+                            <td className="border border-gray-300 p-2">
+                              <input
+                                type="date"
+                                value={result.date}
+                                onChange={(e) => updateArrayField('recentResults', index, 'date', e.target.value)}
+                                className="w-full px-2 py-1 border-0 focus:ring-1 focus:ring-blue-500"
+                              />
+                            </td>
+                            <td className="border border-gray-300 p-2">
+                              <input
+                                type="text"
+                                value={result.competition}
+                                onChange={(e) => updateArrayField('recentResults', index, 'competition', e.target.value)}
+                                className="w-full px-2 py-1 border-0 focus:ring-1 focus:ring-blue-500"
+                              />
+                            </td>
+                            <td className="border border-gray-300 p-2">
+                              <input
+                                type="text"
+                                value={result.category}
+                                onChange={(e) => updateArrayField('recentResults', index, 'category', e.target.value)}
+                                className="w-full px-2 py-1 border-0 focus:ring-1 focus:ring-blue-500"
+                              />
+                            </td>
+                            <td className="border border-gray-300 p-2">
+                              <input
+                                type="text"
+                                value={result.placing}
+                                onChange={(e) => updateArrayField('recentResults', index, 'placing', e.target.value)}
+                                className="w-full px-2 py-1 border-0 focus:ring-1 focus:ring-blue-500"
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <h3 className="text-2xl font-bold text-blue-900 mb-4 mt-8">BEST 3 CAREER ACHIEVEMENTS</h3>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border border-gray-300">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
+                          <th className="border border-gray-300 px-4 py-2 text-left">Competition</th>
+                          <th className="border border-gray-300 px-4 py-2 text-left">Status</th>
+                          <th className="border border-gray-300 px-4 py-2 text-left">Placing</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {formData.careerResults.map((result, index) => (
+                          <tr key={index}>
+                            <td className="border border-gray-300 p-2">
+                              <input
+                                type="date"
+                                value={result.date}
+                                onChange={(e) => updateArrayField('careerResults', index, 'date', e.target.value)}
+                                className="w-full px-2 py-1 border-0 focus:ring-1 focus:ring-blue-500"
+                              />
+                            </td>
+                            <td className="border border-gray-300 p-2">
+                              <input
+                                type="text"
+                                value={result.competition}
+                                onChange={(e) => updateArrayField('careerResults', index, 'competition', e.target.value)}
+                                className="w-full px-2 py-1 border-0 focus:ring-1 focus:ring-blue-500"
+                              />
+                            </td>
+                            <td className="border border-gray-300 p-2">
+                              <input
+                                type="text"
+                                value={result.status}
+                                onChange={(e) => updateArrayField('careerResults', index, 'status', e.target.value)}
+                                className="w-full px-2 py-1 border-0 focus:ring-1 focus:ring-blue-500"
+                              />
+                            </td>
+                            <td className="border border-gray-300 p-2">
+                              <input
+                                type="text"
+                                value={result.placing}
+                                onChange={(e) => updateArrayField('careerResults', index, 'placing', e.target.value)}
+                                className="w-full px-2 py-1 border-0 focus:ring-1 focus:ring-blue-500"
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {currentSection === 2 && (
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-blue-900 mb-4">PLACEMENT INFORMATION</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Team Name</label>
+                      <input
+                        type="text"
+                        value={formData.teamName}
+                        onChange={(e) => updateField('teamName', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Team Contact</label>
+                      <input
+                        type="text"
+                        value={formData.teamContact}
+                        onChange={(e) => updateField('teamContact', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Team Location</label>
+                    <textarea
+                      value={formData.teamLocation}
+                      onChange={(e) => updateField('teamLocation', e.target.value)}
+                      rows="2"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Team Phone</label>
+                      <input
+                        type="tel"
+                        value={formData.teamPhone}
+                        onChange={(e) => updateField('teamPhone', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Team Email</label>
+                      <input
+                        type="email"
+                        value={formData.teamEmail}
+                        onChange={(e) => updateField('teamEmail', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Team Category</label>
+                      <input
+                        type="text"
+                        value={formData.teamCategory}
+                        onChange={(e) => updateField('teamCategory', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">90 Day Rule Agreement</label>
+                    <textarea
+                      value={formData.ninetyDayRule}
+                      onChange={(e) => updateField('ninetyDayRule', e.target.value)}
+                      rows="2"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+
+                  <h3 className="text-2xl font-bold text-blue-900 mb-4 mt-8">FUNDING INFORMATION</h3>
+                  <p className="text-sm text-gray-600 mb-4">Answer these questions completely and truthfully</p>
+
+                  {fundingQuestions.map(([field, infoField, label]) => (
+                    <div key={field} className="space-y-2">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Y/N</label>
+                          <select
+                            value={formData[field]}
+                            onChange={(e) => updateField(field, e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          >
+                            <option value="">Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Further Information</label>
+                        <textarea
+                          value={formData[infoField]}
+                          onChange={(e) => updateField(infoField, e.target.value)}
+                          rows="2"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {currentSection === 3 && (
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-blue-900 mb-4">IN YOUR OWN WORDS</h3>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Tell us why you would like to become a Rayner Foundation Rider. How you think the RF could help you at the beginning of your career and just as importantly, how you think you could help the RF from now and throughout your career.
+                    </label>
+                    <textarea
+                      value={formData.personalStatement}
+                      onChange={(e) => updateField('personalStatement', e.target.value)}
+                      rows="15"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                      placeholder="Please write your personal statement here..."
+                    />
+                  </div>
+
+                  <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
+                    <p className="text-sm text-gray-700">
+                      <strong>Submission Instructions:</strong> Once completed, you can email this form to:<br />
+                      <span className="font-mono text-blue-700">nigelbishop@live.co.uk</span>
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="border-t p-6 flex justify-between">
-              <div className="flex gap-3">
-                {currentSection > 0 && (
-                  <button onClick={() => setCurrentSection(currentSection - 1)} className="px-6 py-2 bg-gray-300 rounded-lg">Previous</button>
-                )}
-                {currentSection < 3 && (
-                  <button onClick={() => setCurrentSection(currentSection + 1)} className="px-6 py-2 bg-blue-600 text-white rounded-lg">Next</button>
-                )}
-              </div>
-              <div className="flex gap-3">
-                <button onClick={handleDownloadPDF} disabled={isGenerating} className="flex items-center gap-2 px-6 py-2 bg-gray-600 text-white rounded-lg">
-                  <Download size={18} />
-                  {isGenerating ? 'Generating...' : 'Download PDF'}
-                </button>
-                <button onClick={handleEmail} className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg">
-                  <Mail size={18} />
-                  Email
-                </button>
+            <div className="border-t border-gray-200 bg-gray-50 p-6">
+              <div className="flex flex-wrap gap-3 justify-between items-center">
+                <div className="flex gap-3">
+                  {currentSection > 0 && (
+                    <button
+                      onClick={() => setCurrentSection(currentSection - 1)}
+                      className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+                    >
+                      Previous
+                    </button>
+                  )}
+                  {currentSection < 3 && (
+                    <button
+                      onClick={() => setCurrentSection(currentSection + 1)}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                    >
+                      Next
+                    </button>
+                  )}
+                </div>
+                
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleDownloadPDF}
+                    disabled={isGenerating}
+                    className="flex items-center gap-2 px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium disabled:opacity-50"
+                  >
+                    <Download size={18} />
+                    {isGenerating ? 'Generating...' : 'Download PDF'}
+                  </button>
+                  <button
+                    onClick={handleEmail}
+                    className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                  >
+                    <Mail size={18} />
+                    Email Application
+                  </button>
+                </div>
               </div>
             </div>
           </div>
