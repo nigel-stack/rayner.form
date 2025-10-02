@@ -68,103 +68,163 @@
         setIsGenerating(true);
         
         const pdfHtml = `
-          <div style="padding: 30px; font-family: Arial, sans-serif; font-size: 12px;">
-            <div style="text-align: center; background-color: #1e3a8a; color: white; padding: 20px; margin-bottom: 20px;">
-              <h1 style="font-size: 24px; font-weight: bold; margin: 0;">THE RAYNER FOUNDATION</h1>
-              <h2 style="font-size: 18px; margin: 5px 0 0 0;">RIDER APPLICATION FORM 2026</h2>
+          <div style="padding: 25px; font-family: Arial, sans-serif; font-size: 11px; line-height: 1.4;">
+            <div style="text-align: center; background-color: #1e3a8a; color: white; padding: 20px; margin-bottom: 25px;">
+              <h1 style="font-size: 22px; font-weight: bold; margin: 0;">THE RAYNER FOUNDATION</h1>
+              <h2 style="font-size: 16px; margin: 5px 0 0 0;">RIDER APPLICATION FORM 2026</h2>
             </div>
             
-            <div style="margin-bottom: 30px;">
-              <h3 style="color: #1e3a8a; font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px;">PERSONAL INFORMATION</h3>
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr><td style="padding: 4px 0; width: 35%; font-weight: bold;">Name:</td><td style="padding: 4px 0;">${formData.name}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Date of Birth:</td><td style="padding: 4px 0;">${formData.dob}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Place of Birth:</td><td style="padding: 4px 0;">${formData.pob}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Address:</td><td style="padding: 4px 0;">${formData.address}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Home Telephone:</td><td style="padding: 4px 0;">${formData.homeTelephone}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Mobile:</td><td style="padding: 4px 0;">${formData.mobile}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Email:</td><td style="padding: 4px 0;">${formData.email}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Current Team:</td><td style="padding: 4px 0;">${formData.currentTeam}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">BC Membership:</td><td style="padding: 4px 0;">${formData.bcMembership}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">UCI Number:</td><td style="padding: 4px 0;">${formData.uciNumber}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">BC Ranking:</td><td style="padding: 4px 0;">${formData.bcRanking}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">World Ranking:</td><td style="padding: 4px 0;">${formData.worldRanking}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Coach:</td><td style="padding: 4px 0;">${formData.coachName}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Coach Contact:</td><td style="padding: 4px 0;">${formData.coachContact}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Agent:</td><td style="padding: 4px 0;">${formData.agentName}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Agent Contact:</td><td style="padding: 4px 0;">${formData.agentContact}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">National Insurance:</td><td style="padding: 4px 0;">${formData.nationalInsurance}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Passport:</td><td style="padding: 4px 0;">${formData.passportNo}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Passport Expiry:</td><td style="padding: 4px 0;">${formData.passportExpiry}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">Second Nationality:</td><td style="padding: 4px 0;">${formData.secondNationality}</td></tr>
-                <tr><td style="padding: 4px 0; font-weight: bold;">EU Arrangements:</td><td style="padding: 4px 0;">${formData.euArrangements}</td></tr>
+            <div style="margin-bottom: 25px;">
+              <h3 style="color: #1e3a8a; font-size: 14px; font-weight: bold; margin-bottom: 12px; border-bottom: 2px solid #1e3a8a; padding-bottom: 4px;">PERSONAL INFORMATION</h3>
+              <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+                <tr><td style="padding: 3px 0; width: 30%; font-weight: bold;">Name:</td><td style="padding: 3px 0;">${formData.name || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Date of Birth:</td><td style="padding: 3px 0;">${formData.dob || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Place of Birth:</td><td style="padding: 3px 0;">${formData.pob || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Address:</td><td style="padding: 3px 0;">${formData.address || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Home Telephone:</td><td style="padding: 3px 0;">${formData.homeTelephone || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Mobile:</td><td style="padding: 3px 0;">${formData.mobile || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Email:</td><td style="padding: 3px 0;">${formData.email || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Current Team:</td><td style="padding: 3px 0;">${formData.currentTeam || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">BC Membership No:</td><td style="padding: 3px 0;">${formData.bcMembership || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">UCI Number:</td><td style="padding: 3px 0;">${formData.uciNumber || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">BC Ranking:</td><td style="padding: 3px 0;">${formData.bcRanking || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">World Ranking:</td><td style="padding: 3px 0;">${formData.worldRanking || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Coach Name:</td><td style="padding: 3px 0;">${formData.coachName || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Coach Contact:</td><td style="padding: 3px 0;">${formData.coachContact || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Agent Name:</td><td style="padding: 3px 0;">${formData.agentName || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Agent Contact:</td><td style="padding: 3px 0;">${formData.agentContact || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">National Insurance:</td><td style="padding: 3px 0;">${formData.nationalInsurance || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Passport No:</td><td style="padding: 3px 0;">${formData.passportNo || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Passport Expiry:</td><td style="padding: 3px 0;">${formData.passportExpiry || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Second Nationality:</td><td style="padding: 3px 0;">${formData.secondNationality || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">EU Arrangements:</td><td style="padding: 3px 0;">${formData.euArrangements || 'N/A'}</td></tr>
               </table>
             </div>
 
-            <div style="margin-bottom: 30px;">
-              <h3 style="color: #1e3a8a; font-size: 16px; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px;">RACING ACHIEVEMENTS - Last 12 Months</h3>
-              <table style="width: 100%; border-collapse: collapse; border: 1px solid #999; font-size: 10px;">
+            <div style="margin-bottom: 25px; page-break-inside: avoid;">
+              <h3 style="color: #1e3a8a; font-size: 14px; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid #1e3a8a; padding-bottom: 4px;">RACING ACHIEVEMENTS - Last 12 Months</h3>
+              <table style="width: 100%; border-collapse: collapse; border: 1px solid #999; font-size: 9px;">
                 <thead>
                   <tr style="background-color: #f3f4f6;">
-                    <th style="border: 1px solid #999; padding: 5px; text-align: left;">Date</th>
-                    <th style="border: 1px solid #999; padding: 5px; text-align: left;">Competition</th>
-                    <th style="border: 1px solid #999; padding: 5px; text-align: left;">Category</th>
-                    <th style="border: 1px solid #999; padding: 5px; text-align: left;">Placing</th>
+                    <th style="border: 1px solid #999; padding: 4px; text-align: left; width: 12%;">Date</th>
+                    <th style="border: 1px solid #999; padding: 4px; text-align: left;">Competition</th>
+                    <th style="border: 1px solid #999; padding: 4px; text-align: left; width: 20%;">Category</th>
+                    <th style="border: 1px solid #999; padding: 4px; text-align: left; width: 12%;">Placing</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${formData.recentResults.map(r => `
                     <tr>
-                      <td style="border: 1px solid #999; padding: 4px;">${r.date}</td>
-                      <td style="border: 1px solid #999; padding: 4px;">${r.competition}</td>
-                      <td style="border: 1px solid #999; padding: 4px;">${r.category}</td>
-                      <td style="border: 1px solid #999; padding: 4px;">${r.placing}</td>
+                      <td style="border: 1px solid #999; padding: 3px;">${r.date || ''}</td>
+                      <td style="border: 1px solid #999; padding: 3px;">${r.competition || ''}</td>
+                      <td style="border: 1px solid #999; padding: 3px;">${r.category || ''}</td>
+                      <td style="border: 1px solid #999; padding: 3px;">${r.placing || ''}</td>
                     </tr>
                   `).join('')}
                 </tbody>
               </table>
             </div>
 
-            <div style="margin-bottom: 30px;">
-              <h3 style="color: #1e3a8a; font-size: 16px; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px;">BEST 3 CAREER ACHIEVEMENTS</h3>
-              <table style="width: 100%; border-collapse: collapse; border: 1px solid #999; font-size: 10px;">
+            <div style="margin-bottom: 25px; page-break-inside: avoid;">
+              <h3 style="color: #1e3a8a; font-size: 14px; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid #1e3a8a; padding-bottom: 4px;">BEST 3 CAREER ACHIEVEMENTS</h3>
+              <table style="width: 100%; border-collapse: collapse; border: 1px solid #999; font-size: 9px;">
                 <thead>
                   <tr style="background-color: #f3f4f6;">
-                    <th style="border: 1px solid #999; padding: 5px; text-align: left;">Date</th>
-                    <th style="border: 1px solid #999; padding: 5px; text-align: left;">Competition</th>
-                    <th style="border: 1px solid #999; padding: 5px; text-align: left;">Status</th>
-                    <th style="border: 1px solid #999; padding: 5px; text-align: left;">Placing</th>
+                    <th style="border: 1px solid #999; padding: 4px; text-align: left; width: 12%;">Date</th>
+                    <th style="border: 1px solid #999; padding: 4px; text-align: left;">Competition</th>
+                    <th style="border: 1px solid #999; padding: 4px; text-align: left; width: 20%;">Status</th>
+                    <th style="border: 1px solid #999; padding: 4px; text-align: left; width: 12%;">Placing</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${formData.careerResults.map(r => `
                     <tr>
-                      <td style="border: 1px solid #999; padding: 4px;">${r.date}</td>
-                      <td style="border: 1px solid #999; padding: 4px;">${r.competition}</td>
-                      <td style="border: 1px solid #999; padding: 4px;">${r.status}</td>
-                      <td style="border: 1px solid #999; padding: 4px;">${r.placing}</td>
+                      <td style="border: 1px solid #999; padding: 3px;">${r.date || ''}</td>
+                      <td style="border: 1px solid #999; padding: 3px;">${r.competition || ''}</td>
+                      <td style="border: 1px solid #999; padding: 3px;">${r.status || ''}</td>
+                      <td style="border: 1px solid #999; padding: 3px;">${r.placing || ''}</td>
                     </tr>
                   `).join('')}
                 </tbody>
               </table>
             </div>
 
-            <div style="margin-bottom: 30px;">
-              <h3 style="color: #1e3a8a; font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px;">PLACEMENT & FUNDING</h3>
-              <p><strong>Team:</strong> ${formData.teamName}</p>
-              <p><strong>Contact:</strong> ${formData.teamContact}</p>
-              <p><strong>Location:</strong> ${formData.teamLocation}</p>
-              <p><strong>Accommodation Provided:</strong> ${formData.accommodationProvided} - ${formData.accommodationProvidedInfo}</p>
-              <p><strong>Accommodation Charged:</strong> ${formData.accommodationCharged} - ${formData.accommodationChargedInfo}</p>
-              <p><strong>Daily Food:</strong> ${formData.dailyFood} - ${formData.dailyFoodInfo}</p>
-              <p><strong>Travel:</strong> ${formData.travelArrangement} - ${formData.travelArrangementInfo}</p>
-              <p><strong>Equipment:</strong> ${formData.equipment} - ${formData.equipmentInfo}</p>
-              <p><strong>Wage/Salary:</strong> ${formData.wageSalary} - ${formData.wageSalaryInfo}</p>
+            <div style="margin-bottom: 25px;">
+              <h3 style="color: #1e3a8a; font-size: 14px; font-weight: bold; margin-bottom: 12px; border-bottom: 2px solid #1e3a8a; padding-bottom: 4px;">PLACEMENT INFORMATION</h3>
+              <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+                <tr><td style="padding: 3px 0; width: 30%; font-weight: bold;">Team Name:</td><td style="padding: 3px 0;">${formData.teamName || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Team Contact:</td><td style="padding: 3px 0;">${formData.teamContact || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Team Phone:</td><td style="padding: 3px 0;">${formData.teamPhone || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Team Location:</td><td style="padding: 3px 0;">${formData.teamLocation || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Team Email:</td><td style="padding: 3px 0;">${formData.teamEmail || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">Team Category:</td><td style="padding: 3px 0;">${formData.teamCategory || 'N/A'}</td></tr>
+                <tr><td style="padding: 3px 0; font-weight: bold;">90 Day Rule:</td><td style="padding: 3px 0;">${formData.ninetyDayRule || 'N/A'}</td></tr>
+              </table>
             </div>
 
-            <div>
-              <h3 style="color: #1e3a8a; font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px;">PERSONAL STATEMENT</h3>
-              <p style="white-space: pre-wrap; line-height: 1.5;">${formData.personalStatement}</p>
+            <div style="margin-bottom: 25px;">
+              <h3 style="color: #1e3a8a; font-size: 14px; font-weight: bold; margin-bottom: 12px; border-bottom: 2px solid #1e3a8a; padding-bottom: 4px;">FUNDING INFORMATION</h3>
+              
+              <div style="margin-bottom: 10px; border: 1px solid #ddd; padding: 8px; background-color: #f9fafb;">
+                <p style="font-weight: bold; margin: 0 0 4px 0; font-size: 10px;">Is your accommodation provided?</p>
+                <p style="margin: 0 0 4px 0; font-size: 10px;"><strong>Answer:</strong> ${formData.accommodationProvided || 'N/A'}</p>
+                <p style="margin: 0; font-size: 9px; color: #555;">${formData.accommodationProvidedInfo || 'No additional information provided'}</p>
+              </div>
+
+              <div style="margin-bottom: 10px; border: 1px solid #ddd; padding: 8px; background-color: #f9fafb;">
+                <p style="font-weight: bold; margin: 0 0 4px 0; font-size: 10px;">Is your accommodation charged? How much?</p>
+                <p style="margin: 0 0 4px 0; font-size: 10px;"><strong>Answer:</strong> ${formData.accommodationCharged || 'N/A'}</p>
+                <p style="margin: 0; font-size: 9px; color: #555;">${formData.accommodationChargedInfo || 'No additional information provided'}</p>
+              </div>
+
+              <div style="margin-bottom: 10px; border: 1px solid #ddd; padding: 8px; background-color: #f9fafb;">
+                <p style="font-weight: bold; margin: 0 0 4px 0; font-size: 10px;">Do you contribute to accommodation upkeep?</p>
+                <p style="margin: 0 0 4px 0; font-size: 10px;"><strong>Answer:</strong> ${formData.accommodationUpkeep || 'N/A'}</p>
+                <p style="margin: 0; font-size: 9px; color: #555;">${formData.accommodationUpkeepInfo || 'No additional information provided'}</p>
+              </div>
+
+              <div style="margin-bottom: 10px; border: 1px solid #ddd; padding: 8px; background-color: #f9fafb;">
+                <p style="font-weight: bold; margin: 0 0 4px 0; font-size: 10px;">Do you pay for daily food? How much?</p>
+                <p style="margin: 0 0 4px 0; font-size: 10px;"><strong>Answer:</strong> ${formData.dailyFood || 'N/A'}</p>
+                <p style="margin: 0; font-size: 9px; color: #555;">${formData.dailyFoodInfo || 'No additional information provided'}</p>
+              </div>
+
+              <div style="margin-bottom: 10px; border: 1px solid #ddd; padding: 8px; background-color: #f9fafb;">
+                <p style="font-weight: bold; margin: 0 0 4px 0; font-size: 10px;">How will you travel to races? Who pays?</p>
+                <p style="margin: 0 0 4px 0; font-size: 10px;"><strong>Answer:</strong> ${formData.travelArrangement || 'N/A'}</p>
+                <p style="margin: 0; font-size: 9px; color: #555;">${formData.travelArrangementInfo || 'No additional information provided'}</p>
+              </div>
+
+              <div style="margin-bottom: 10px; border: 1px solid #ddd; padding: 8px; background-color: #f9fafb;">
+                <p style="font-weight: bold; margin: 0 0 4px 0; font-size: 10px;">Do you receive equipment from team?</p>
+                <p style="margin: 0 0 4px 0; font-size: 10px;"><strong>Answer:</strong> ${formData.equipment || 'N/A'}</p>
+                <p style="margin: 0; font-size: 9px; color: #555;">${formData.equipmentInfo || 'No additional information provided'}</p>
+              </div>
+
+              <div style="margin-bottom: 10px; border: 1px solid #ddd; padding: 8px; background-color: #f9fafb;">
+                <p style="font-weight: bold; margin: 0 0 4px 0; font-size: 10px;">Do you receive a wage/salary? How much per annum?</p>
+                <p style="margin: 0 0 4px 0; font-size: 10px;"><strong>Answer:</strong> ${formData.wageSalary || 'N/A'}</p>
+                <p style="margin: 0; font-size: 9px; color: #555;">${formData.wageSalaryInfo || 'No additional information provided'}</p>
+              </div>
+
+              <div style="margin-bottom: 10px; border: 1px solid #ddd; padding: 8px; background-color: #f9fafb;">
+                <p style="font-weight: bold; margin: 0 0 4px 0; font-size: 10px;">Expected to repay any support?</p>
+                <p style="margin: 0 0 4px 0; font-size: 10px;"><strong>Answer:</strong> ${formData.repayment || 'N/A'}</p>
+                <p style="margin: 0; font-size: 9px; color: #555;">${formData.repaymentInfo || 'No additional information provided'}</p>
+              </div>
+
+              <div style="margin-bottom: 10px; border: 1px solid #ddd; padding: 8px; background-color: #f9fafb;">
+                <p style="font-weight: bold; margin: 0 0 4px 0; font-size: 10px;">Any other income or support sources?</p>
+                <p style="margin: 0 0 4px 0; font-size: 10px;"><strong>Answer:</strong> ${formData.otherSupport || 'N/A'}</p>
+                <p style="margin: 0; font-size: 9px; color: #555;">${formData.otherSupportInfo || 'No additional information provided'}</p>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+              <h3 style="color: #1e3a8a; font-size: 14px; font-weight: bold; margin-bottom: 12px; border-bottom: 2px solid #1e3a8a; padding-bottom: 4px;">IN YOUR OWN WORDS</h3>
+              <div style="border: 1px solid #ddd; padding: 10px; background-color: #f9fafb; min-height: 150px;">
+                <p style="white-space: pre-wrap; line-height: 1.6; font-size: 10px; margin: 0;">${formData.personalStatement || 'No personal statement provided'}</p>
+              </div>
             </div>
           </div>
         `;
@@ -173,16 +233,18 @@
         element.innerHTML = pdfHtml;
 
         const opt = {
-          margin: 10,
+          margin: [10, 10, 10, 10],
           filename: `Rayner_Application_${formData.name.replace(/\s+/g, '_') || 'Form'}_2026.pdf`,
-          image: { type: 'jpeg', quality: 0.95 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, logging: false },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
         try {
           await html2pdf().set(opt).from(element).save();
         } catch (error) {
+          console.error('PDF Error:', error);
           alert('Error generating PDF. Please try again.');
         } finally {
           setIsGenerating(false);
@@ -205,8 +267,8 @@
         ['accommodationCharged', 'accommodationChargedInfo', 'Is your accommodation charged? How much?'],
         ['accommodationUpkeep', 'accommodationUpkeepInfo', 'Do you contribute to accommodation upkeep?'],
         ['dailyFood', 'dailyFoodInfo', 'Do you pay for daily food? How much?'],
-        ['travelArrangement', 'travelArrangementInfo', 'How will you travel to races? Who pays?'],
-        ['equipment', 'equipmentInfo', 'Do you receive equipment from team?'],
+        ['travelArrangement', 'travelArrangementInfo', 'Will you pay to travel to races? Provide details'],
+        ['equipment', 'equipmentInfo', 'Do you receive equipment from the team?'],
         ['wageSalary', 'wageSalaryInfo', 'Do you receive a wage/salary? How much per annum?'],
         ['repayment', 'repaymentInfo', 'Expected to repay any support?'],
         ['otherSupport', 'otherSupportInfo', 'Any other income or support sources?']
@@ -756,6 +818,3 @@
   </script>
 </body>
 </html>
-
-
-
