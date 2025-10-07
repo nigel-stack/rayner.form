@@ -523,138 +523,341 @@ ${formData.name}`);
         const { PDFDocument, StandardFonts, rgb } = PDFLib;
         console.log('PDFLib loaded successfully');
         
-        const A4W = 595.28, A4H = 841.89, M = 36;
+        const A4W = 595.28, A4H = 841.89;
+        const M = 50; // Larger margins for better spacing
         const pdf = await PDFDocument.create();
         const font = await pdf.embedFont(StandardFonts.Helvetica);
         const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
         let page = pdf.addPage([A4W, A4H]);
         const form = pdf.getForm();
-        let y = A4H - M;
+        let y = A4H - 70; // Start lower to account for header
+
+        // Softer colors
+        const lightGray = rgb(0.95, 0.95, 0.96);
+        const borderGray = rgb(0.82, 0.84, 0.86);
+        const textDark = rgb(0.2, 0.2, 0.3);
+        const blue = rgb(0.12, 0.23, 0.54);
 
       const heading = (t) => { 
-        y -= 18; 
-        page.drawText(t, {x:M, y, size:14, font:bold, color:rgb(0.1, 0.2, 0.5)}); 
-        y -= 4;
-        page.drawLine({start:{x:M,y}, end:{x:A4W-M,y}, thickness:1, color:rgb(.1,.1,.3)}); 
+        y -= 24; 
+        page.drawText(t, {x:M, y, size:13, font:bold, color:blue}); 
+        y -= 10;
       };
       
       const ensure = (need=60) => { 
         if (y - need < M) { 
-          page = pdf.addPage([A4W,A4H]); 
+          page = pdf.addPage([A4W, A4H]); 
           y = A4H - M; 
         } 
       };
       
-      const addField = (label, name, val="", { width=A4W-M*2, height=20, multiline=false }={}) => {
-        ensure(40); 
-        y -= 16; 
-        page.drawText(label, {x:M, y, size:10, font:bold});
-        y -= (height + 6); 
+      const addField = (label, name, val="", { width=A4W-M*2, height=24, multiline=false }={}) => {
+        ensure(height + 30); 
+        y -= 14; 
+        page.drawText(label, {x:M, y, size:9, font:font, color:textDark});
+        y -= (height + 4); 
         const fy = y;
-        page.drawRectangle({x:M, y:fy, width:width, height:height, borderColor:rgb(.7,.7,.7), borderWidth:.8});
+        
+        // Softer field background
+        page.drawRectangle({
+          x:M, 
+          y:fy, 
+          width:width, 
+          height:height, 
+          color:lightGray,
+          borderColor:borderGray, 
+          borderWidth:0.5
+        });
         
         const tf = form.createTextField(name);
         if (multiline) tf.enableMultiline();
-        tf.addToPage(page, {x:M+2, y:fy+2, width:width-4, height:height-4});
+        tf.addToPage(page, {x:M+3, y:fy+3, width:width-6, height:height-6});
         if (val) tf.setText(String(val));
         tf.updateAppearances(font);
+        y -= 8; // Extra spacing after field
       };
       
-      const table = (title, headers, rows, prefix, widths=[80,260,110,80]) => {
-        ensure(80); 
-        y -= 18; 
-        page.drawText(title, {x:M, y, size:12, font:bold, color:rgb(0.1, 0.2, 0.5)});
-        y -= 18; 
-        const headY = y;
-        const x = [M, M+widths[0], M+widths[0]+widths[1], M+widths[0]+widths[1]+widths[2]];
+      const addFieldRow = (fields) => {
+        const totalWidth = A4W - M*2;
+        const fieldWidth = totalWidth / fields.length;
+        const gap = 8;
+        const actualWidth = fieldWidth - gap;
         
-        for (let i=0; i<headers.length; i++) {
-          page.drawRectangle({x:x[i], y:headY-18, width:widths[i], height:18, color:rgb(.93,.95,.99), borderColor:rgb(.7,.7,.9)});
-          page.drawText(headers[i], {x:x[i]+4, y:headY-13, size:9, font:bold, color:rgb(.1,.1,.4)});
-        }
+        ensure(50);
+        const startY = y;
         
-        y = headY - 18; 
-        const rowH = 22;
+        fields.forEach((field, idx) => {
+          const xPos = M + (idx * fieldWidth);
+          const labelY = startY - 14;
+          const fieldY = labelY - 28;
+          
+          page.drawText(field.label, {x:xPos, y:labelY, size:9, font:font, color:textDark});
+          
+          page.drawRectangle({
+            x:xPos, 
+            y:fieldY, 
+            width:actualWidth, 
+            height:24, 
+            color:lightGray,
+            borderColor:borderGray, 
+            borderWidth:0.5
+          });
+          
+          const tf = form.createTextField(field.name);
+          tf.addToPage(page, {x:xPos+3, y:fieldY+3, width:actualWidth-6, height:18});
+          if (field.val) tf.setText(String(field.val));
+          tf.updateAppearances(font);
+        });
+        
+        y = startY - 50;
+      };
+      
+      const table = (title, headers, rows, prefix) => {
+        ensure(120); 
+        y -= 20; 
+        page.drawText(title, {x:M, y, size:11, font:bold, color:blue});
+        y -= 22; 
+        
+        const tableWidth = A4W - M*2;
+        const colWidths = [70, 240, 100, 80]; // Date, Competition, Category/Status, Placing
+        let xPos = M;
+        
+        // Header row with softer styling
+        const headerY = y;
+        colWidths.forEach((width, i) => {
+          page.drawRectangle({
+            x:xPos, 
+            y:headerY - 18, 
+            width:width, 
+            height:18, 
+            color:rgb(0.94, 0.96, 0.98),
+            borderColor:borderGray,
+            borderWidth:0.5
+          });
+          page.drawText(headers[i], {
+            x:xPos + 4, 
+            y:headerY - 12, 
+            size:8, 
+            font:bold, 
+            color:textDark
+          });
+          xPos += width;
+        });
+        
+        y = headerY - 18;
+        const rowH = 24;
         
         const addRow = (vals, idxLabel) => {
-          ensure(rowH+6); 
-          const top = y - 4;
+          ensure(rowH + 4);
+          const top = y;
           const names = headers.map((h, i) => `${prefix}.${idxLabel}.${h.toLowerCase().replace(/\s+/g, '_')}`);
           
-          for (let i=0; i<x.length; i++) {
-            page.drawRectangle({x:x[i], y:top-rowH, width:widths[i], height:rowH, borderColor:rgb(.7,.7,.7), borderWidth:.8});
+          xPos = M;
+          colWidths.forEach((width, i) => {
+            page.drawRectangle({
+              x:xPos, 
+              y:top - rowH, 
+              width:width, 
+              height:rowH, 
+              color:lightGray,
+              borderColor:borderGray, 
+              borderWidth:0.5
+            });
+            
             const tf = form.createTextField(names[i]);
-            if (i === 1) tf.enableMultiline();
-            tf.addToPage(page, {x:x[i]+2, y:top-rowH+2, width:widths[i]-4, height:rowH-4});
+            if (i === 1) tf.enableMultiline(); // Competition field
+            tf.addToPage(page, {x:xPos+3, y:top-rowH+3, width:width-6, height:rowH-6});
             if (vals && vals[i] != null) tf.setText(String(vals[i]));
             tf.updateAppearances(font);
-          }
+            
+            xPos += width;
+          });
           
           y = top - rowH;
         };
         
         rows.forEach((r, i) => addRow(r, i));
-        for (let e=0; e<3; e++) addRow(["","","",""], `extra${e}`);
-        y -= 6;
+        // Add 2 extra blank rows for additional entries
+        for (let e=0; e<2; e++) addRow(["","","",""], `extra${e}`);
+        y -= 12;
       };
 
-      // Header banner
-      page.drawRectangle({x:0, y:A4H-54, width:A4W, height:40, color:rgb(.11,.2,.55)});
-      page.drawText("THE RAYNER FOUNDATION", {x:M, y:A4H-34, size:16, font:bold, color:rgb(1,1,1)});
-      page.drawText("RIDER APPLICATION FORM 2026", {x:M, y:A4H-48, size:11, font:font, color:rgb(1,1,1)});
+      // Header banner - cleaner design
+      page.drawRectangle({x:0, y:A4H-60, width:A4W, height:60, color:blue});
+      page.drawText("THE RAYNER FOUNDATION", {
+        x:M, 
+        y:A4H-32, 
+        size:18, 
+        font:bold, 
+        color:rgb(1,1,1)
+      });
+      page.drawText("RIDER APPLICATION FORM 2026", {
+        x:M, 
+        y:A4H-48, 
+        size:12, 
+        font:font, 
+        color:rgb(0.9,0.9,1)
+      });
 
       const f = formData || {};
 
       // SECTION 1: PERSONAL INFORMATION
-      heading("SECTION 1: PERSONAL INFORMATION");
-      addField("Full name", "name", f.name || "");
-      addField("Date of birth", "dob", f.dob || "", {width:200});
-      addField("Nationality", "nationality", f.nationality || "", {width:300});
-      addField("Address", "address", f.address || "", {height:40, multiline:true});
-      addField("Email", "email", f.email || "");
-      addField("Phone", "phone", f.phone || "", {width:250});
-      addField("Passport number", "passportNo", f.passportNo || "", {width:250});
-      addField("Passport expiry", "passportExpiry", f.passportExpiry || "", {width:200});
-      addField("EU arrangements (if applicable)", "euArrangements", f.euArrangements || "", {multiline:true, height:50});
+      heading("PERSONAL INFORMATION");
+      
+      addFieldRow([
+        {label: "Full Name *", name: "name", val: f.name},
+        {label: "Date of Birth *", name: "dob", val: f.dob},
+        {label: "Place of Birth", name: "nationality", val: f.nationality}
+      ]);
+      
+      addField("Address *", "address", f.address || "", {height:36, multiline:true});
+      
+      addFieldRow([
+        {label: "Home Telephone", name: "homeTel", val: f.homeTelephone},
+        {label: "Mobile *", name: "phone", val: f.phone},
+        {label: "Email *", name: "email", val: f.email}
+      ]);
+      
+      addFieldRow([
+        {label: "Current Team", name: "currentTeam", val: f.currentTeam},
+        {label: "BC Membership No", name: "bcMembership", val: f.bcMembership}
+      ]);
+      
+      addFieldRow([
+        {label: "UCI Number", name: "uciNumber", val: f.uciNumber},
+        {label: "BC Ranking", name: "bcRanking", val: f.bcRanking},
+        {label: "World Ranking", name: "worldRanking", val: f.worldRanking}
+      ]);
+      
+      addFieldRow([
+        {label: "Coach Name", name: "coachName", val: f.coachName},
+        {label: "Coach Contact", name: "coachContact", val: f.coachContact}
+      ]);
+      
+      addFieldRow([
+        {label: "Agent Name", name: "agentName", val: f.agentName},
+        {label: "Agent Contact", name: "agentContact", val: f.agentContact}
+      ]);
+      
+      addFieldRow([
+        {label: "National Insurance No", name: "ni", val: f.nationalInsurance},
+        {label: "Passport Number", name: "passportNo", val: f.passportNo},
+        {label: "Passport Expiry", name: "passportExpiry", val: f.passportExpiry}
+      ]);
+      
+      addField("Second Nationality?", "secondNat", f.secondNationality || "");
+      addField("EU Arrangements", "euArrangements", f.euArrangements || "", {height:32, multiline:true});
 
       // SECTION 2: RACING ACHIEVEMENTS
-      heading("SECTION 2: RACING ACHIEVEMENTS");
-      const byCat = (f.resultsByCategory || []).map(r => [r?.date||"", r?.competition||"", r?.category||"", r?.placing||""]);
-      table("Results (by category)", ["Date","Competition","Category","Placing"], byCat, "resultsByCategory");
+      ensure(200);
+      heading("RACING ACHIEVEMENTS - Last 12 Months");
+      page.drawText("Best 10 results in order of success", {
+        x:M, 
+        y:y-2, 
+        size:8, 
+        font:font, 
+        color:rgb(0.4,0.4,0.5)
+      });
+      y -= 8;
       
-      const byStatus = (f.resultsByStatus || []).map(r => [r?.date||"", r?.competition||"", r?.status||"", r?.placing||""]);
-      table("Other events (by status)", ["Date","Competition","Status","Placing"], byStatus, "resultsByStatus");
+      const byCat = (f.resultsByCategory || []).map(r => [
+        r?.date||"", 
+        r?.competition||"", 
+        r?.category||"", 
+        r?.placing||""
+      ]);
+      // Pad to at least 5 rows
+      while (byCat.length < 5) byCat.push(["","","",""]);
+      table("Recent Results", ["Date","Competition","Category","Placing"], byCat, "recentResults");
+      
+      const byStatus = (f.resultsByStatus || []).map(r => [
+        r?.date||"", 
+        r?.competition||"", 
+        r?.status||"", 
+        r?.placing||""
+      ]);
+      // Pad to at least 3 rows
+      while (byStatus.length < 3) byStatus.push(["","","",""]);
+      table("Best 3 Career Achievements", ["Date","Competition","Status","Placing"], byStatus, "careerResults");
 
       // SECTION 3: PLACEMENT INFORMATION
-      heading("SECTION 3: PLACEMENT INFORMATION");
-      addField("Team / Club name", "teamName", f.teamName || "");
-      addField("Country", "teamCountry", f.teamCountry || "", {width:250});
-      addField("Contact name", "teamContactName", f.teamContactName || "", {width:250});
-      addField("Contact email", "teamContactEmail", f.teamContactEmail || "", {width:300});
-      addField("Category", "teamCategory", f.teamCategory || "", {width:250});
-      addField("90-day rule / notes", "ninetyDayRule", f.ninetyDayRule || "", {multiline:true, height:50});
+      ensure(200);
+      heading("PLACEMENT INFORMATION");
+      
+      addFieldRow([
+        {label: "Team Name", name: "teamName", val: f.teamName},
+        {label: "Team Contact", name: "teamContactName", val: f.teamContactName}
+      ]);
+      
+      addField("Team Location", "teamCountry", f.teamCountry || "");
+      
+      addFieldRow([
+        {label: "Team Phone", name: "teamPhone", val: f.teamPhone},
+        {label: "Team Email", name: "teamContactEmail", val: f.teamContactEmail},
+        {label: "Team Category", name: "teamCategory", val: f.teamCategory}
+      ]);
+      
+      addField("90-day rule / written agreement from team", "ninetyDayRule", f.ninetyDayRule || "", {multiline:true, height:40});
 
       // SECTION 4: IN YOUR OWN WORDS
-      heading("SECTION 4: IN YOUR OWN WORDS");
-      addField("Tell us about yourself, your goals and plans for the season.", "inYourOwnWords", f.inYourOwnWords || "", {multiline:true, height:160});
+      ensure(180);
+      heading("IN YOUR OWN WORDS");
+      page.drawText("Tell us why you would like to become a Rayner Foundation Rider and how you could help the RF.", {
+        x:M, 
+        y:y-2, 
+        size:8, 
+        font:font, 
+        color:rgb(0.4,0.4,0.5)
+      });
+      y -= 8;
+      addField("Personal Statement", "inYourOwnWords", f.inYourOwnWords || "", {multiline:true, height:120});
 
       // Declaration
+      ensure(70);
       heading("DECLARATION");
-      y -= 14; 
-      page.drawText("I confirm that the information provided in this form is accurate to the best of my knowledge.", {x:M, y, size:10, font});
-      ensure(48);
+      page.drawText("I confirm that the information provided in this form is accurate to the best of my knowledge.", {
+        x:M, 
+        y:y-4, 
+        size:9, 
+        font:font,
+        color:textDark
+      });
+      y -= 24;
       
-      const sigY = y - 10, sigW = 280;
-      page.drawText("Applicant signature:", { x:M, y:sigY+24, size:10, font:bold });
-      page.drawRectangle({ x:M, y:sigY, width:sigW, height:20, borderColor:rgb(.7,.7,.7), borderWidth:.8 });
+      const sigWidth = 240;
+      const dateWidth = 120;
+      const gap = 20;
+      
+      // Signature field
+      page.drawText("Signature:", {x:M, y:y, size:9, font:font, color:textDark});
+      y -= 28;
+      page.drawRectangle({
+        x:M, 
+        y:y, 
+        width:sigWidth, 
+        height:24, 
+        color:lightGray,
+        borderColor:borderGray, 
+        borderWidth:0.5
+      });
       const sigField = form.createTextField("signature");
-      sigField.addToPage(page, { x:M+2, y:sigY+2, width:sigW-4, height:16 });
+      sigField.addToPage(page, {x:M+3, y:y+3, width:sigWidth-6, height:18});
       sigField.updateAppearances(font);
       
-      page.drawText("Date:", { x:M+sigW+20, y:sigY+24, size:10, font:bold });
-      page.drawRectangle({ x:M+sigW+20, y:sigY, width:100, height:20, borderColor:rgb(.7,.7,.7), borderWidth:.8 });
+      // Date field
+      const dateX = M + sigWidth + gap;
+      page.drawText("Date:", {x:dateX, y:y+28, size:9, font:font, color:textDark});
+      page.drawRectangle({
+        x:dateX, 
+        y:y, 
+        width:dateWidth, 
+        height:24, 
+        color:lightGray,
+        borderColor:borderGray, 
+        borderWidth:0.5
+      });
       const dateField = form.createTextField("signatureDate");
-      dateField.addToPage(page, { x:M+sigW+22, y:sigY+2, width:96, height:16 });
+      dateField.addToPage(page, {x:dateX+3, y:y+3, width:dateWidth-6, height:18});
       dateField.updateAppearances(font);
 
       console.log('PDF created successfully, generating blob...');
