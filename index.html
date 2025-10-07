@@ -335,22 +335,22 @@
       };
 
       const handleDownloadPDF = async () => {
-try {
-  const blob = await buildFillablePDF(window.formData || {});
-  const a = document.createElement('a');
-  const safeName = ((window.formData && window.formData.name) || 'Form').replace(/\s+/g, '_');
-  a.href = URL.createObjectURL(blob);
-  a.download = `Rayner_Fillable_Application_${safeName}_2026.pdf`;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-} catch (e) {
-  console.error('Fillable PDF generation failed:', e);
-  alert('Sorry, generating the fillable PDF failed. See console for details.');
-}
-};
+        setIsGenerating(true);
+        
+        const element = document.createElement('div');
+        element.innerHTML = generatePDFContent();
+
+        const opt = {
+          margin: [10, 10, 10, 10],
+          filename: `Rayner_Application_${formData.name.replace(/\s+/g, '_') || 'Form'}_2026.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, logging: false, useCORS: true },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['css', 'legacy'] }
+        };
 
         try {
-          await // html2pdf call removed (replaced by buildFillablePDF)
+          await // html2pdf removed (replaced by buildFillablePDF)
         } catch (error) {
           console.error('PDF Error:', error);
           alert('Error generating PDF. Please try again.');
@@ -360,26 +360,25 @@ try {
       };
 
       const handleEmailWithPDF = async () => {
-try {
-  const blob = await buildFillablePDF(window.formData || {});
-  const reader = new FileReader();
-  reader.onload = function() {
-    const base64 = reader.result.split(',')[1];
-    const ev = new CustomEvent('fillable-pdf-ready', { detail: { base64 } });
-    window.dispatchEvent(ev);
-    if (typeof sendEmailWithPdf === 'function') {
-      sendEmailWithPdf(base64);
-    }
-  };
-  reader.readAsDataURL(blob);
-} catch (e) {
-  console.error('Fillable PDF generation (email) failed:', e);
-  alert('Sorry, generating the fillable PDF for email failed.');
-}
-};
+        setIsGenerating(true);
+        
+        // First generate and download the PDF
+        const element = document.createElement('div');
+        element.innerHTML = generatePDFContent();
+
+        const filename = `Rayner_Application_${formData.name.replace(/\s+/g, '_') || 'Form'}_2026.pdf`;
+        
+        const opt = {
+          margin: [2, 8, 8, 8],
+          filename: filename,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, logging: false, useCORS: true },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
 
         try {
-          await // html2pdf call removed (replaced by buildFillablePDF)
+          await // html2pdf removed (replaced by buildFillablePDF)
           
           // Wait a moment for download to start, then open email
           setTimeout(() => {
@@ -741,10 +740,10 @@ ${formData.name}`);
 
     ReactDOM.render(<RaynerFoundationForm />, document.getElementById('root'));
   </script>
-
-<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script defer src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
 <script>
+// === Fillable (AcroForm) PDF generator ===
 async function buildFillablePDF(formData) {
   const { PDFDocument, StandardFonts, rgb } = PDFLib;
   const A4W = 595.28, A4H = 841.89, M = 36;
@@ -754,38 +753,62 @@ async function buildFillablePDF(formData) {
   let page = pdf.addPage([A4W, A4H]);
   const form = pdf.getForm();
   let y = A4H - M;
-  const heading = (t) => { y-=18; page.drawText(t,{x:M,y,size:14,font:bold}); y-=4; page.drawLine({start:{x:M,y},end:{x:A4W-M,y},thickness:1,color:rgb(.1,.1,.3)}); };
-  const ensure = (need=60) => { if (y-need < M) { page = pdf.addPage([A4W,A4H]); y = A4H - M; } };
-  const addField = (label, name, val="", {width=A4W-M*2, height=20, multiline=false}={}) => {
-    ensure(40); y-=16; page.drawText(label,{x:M,y,size:11,font:bold});
-    y-=(height+6); const fy=y;
+
+  const heading = (t) => { y -= 18; page.drawText(t,{x:M,y,size:14,font:bold}); y -= 4;
+    page.drawLine({start:{x:M,y}, end:{x:A4W-M,y}, thickness:1, color:rgb(.1,.1,.3)}); };
+  const ensure = (need=60) => { if (y - need < M) { page = pdf.addPage([A4W,A4H]); y = A4H - M; } };
+  const addField = (label, name, val="", { width=A4W-M*2, height=20, multiline=false }={}) => {
+    ensure(40); y -= 16; page.drawText(label,{x:M,y,size:11,font:bold});
+    y -= (height + 6); const fy = y;
     page.drawRectangle({x:M,y:fy,width:width,height:height,borderColor:rgb(.7,.7,.7),borderWidth:.8});
-    const tf=form.createTextField(name); if(multiline) tf.enableMultiline();
+    const tf = form.createTextField(name); if (multiline) tf.enableMultiline();
     tf.setFontSize(11); tf.setTextColor(rgb(0,0,0)); tf.setBorderColor(rgb(.6,.6,.6));
-    if(val) tf.setText(String(val)); tf.addToPage(page,{x:M+2,y:fy+2,width:width-4,height:height-4});
+    if (val) tf.setText(String(val));
+    tf.addToPage(page,{x:M+2,y:fy+2,width:width-4,height:height-4});
   };
-  const rowFields = (yTop, x, w, names, vals, {height=20, multiline=[]}={})=>{
-    for(let i=0;i<x.length;i++){ page.drawRectangle({x:x[i],y:yTop-height,width:w[i],height,borderColor:rgb(.7,.7,.7),borderWidth:.8});
-      const tf=form.createTextField(names[i]); if(multiline[i]) tf.enableMultiline();
+  const rowFields = (yTop, x, w, names, vals, {height=20, multiline=[]}={}) => {
+    for (let i=0;i<x.length;i++) {
+      page.drawRectangle({x:x[i], y:yTop-height, width:w[i], height, borderColor:rgb(.7,.7,.7), borderWidth:.8});
+      const tf = form.createTextField(names[i]); if (multiline[i]) tf.enableMultiline();
       tf.setFontSize(10); tf.setTextColor(rgb(0,0,0)); tf.setBorderColor(rgb(.6,.6,.6));
-      if(vals && vals[i]!=null) tf.setText(String(vals[i]));
-      tf.addToPage(page,{x:x[i]+2,y:yTop-height+2,width:w[i]-4,height:height-4}); }
+      if (vals && vals[i] != null) tf.setText(String(vals[i]));
+      tf.addToPage(page,{x:x[i]+2,y:yTop-height+2,width:w[i]-4,height:height-4});
+    }
   };
-  const table = (title, headers, rows, prefix, widths=[80,260,110,80])=>{
-    ensure(80); y-=18; page.drawText(title,{x:M,y,size:12,font:bold});
-    y-=18; const headY=y; const x=[M, M+widths[0], M+widths[0]+widths[1], M+widths[0]+widths[1]+widths[2]];
-    for(let i=0;i<headers.length;i++){ page.drawRectangle({x:x[i],y:headY-18,width:widths[i],height:18,color:rgb(.93,.95,.99),borderColor:rgb(.7,.7,.9)});
-      page.drawText(headers[i],{x:x[i]+4,y:headY-13,size:10,font:bold,color:rgb(.1,.1,.4)});}
-    y=headY-18; const rowH=22;
-    const addRow=(vals, idxLabel)=>{ ensure(rowH+6); const top=y-4;
-      const names=[`${prefix}.${idxLabel}.date`,`${prefix}.${idxLabel}.competition`,`${prefix}.${idxLabel}.${headers[2].toLowerCase()}`,`${prefix}.${idxLabel}.placing`];
-      rowFields(top, x, widths, names, vals, {height:22, multiline:[false,true,false,false]}); y = top - (rowH-2); };
-    rows.forEach((r,i)=>addRow(r,i)); for(let e=0;e<3;e++) addRow(["","","",""], `extra${e}`); y-=6;
+  const table = (title, headers, rows, prefix, widths=[80,260,110,80]) => {
+    ensure(80); y -= 18; page.drawText(title,{x:M,y,size:12,font:bold});
+    y -= 18; const headY = y;
+    const x = [M, M+widths[0], M+widths[0]+widths[1], M+widths[0]+widths[1]+widths[2]];
+    for (let i=0;i<headers.length;i++) {
+      page.drawRectangle({x:x[i], y:headY-18, width:widths[i], height:18, color:rgb(.93,.95,.99), borderColor:rgb(.7,.7,.9)});
+      page.drawText(headers[i], {x:x[i]+4, y:headY-13, size:10, font:bold, color:rgb(.1,.1,.4)});
+    }
+    y = headY - 18; const rowH = 22;
+    const addRow = (vals, idxLabel) => {
+      ensure(rowH+6); const top = y - 4;
+      const names = [
+        `${prefix}.${idxLabel}.date`,
+        `${prefix}.${idxLabel}.competition`,
+        `${prefix}.${idxLabel}.${headers[2].toLowerCase()}`,
+        `${prefix}.${idxLabel}.placing`
+      ];
+      rowFields(top, x, widths, names, vals, {height:22, multiline:[false,true,false,false]});
+      y = top - (rowH - 2);
+    };
+    rows.forEach((r,i) => addRow(r,i));
+    for (let e=0;e<3;e++) addRow(["","","",""], `extra${e}`);
+    y -= 6;
   };
+
+  // Header banner
   page.drawRectangle({x:0,y:A4H-54,width:A4W,height:40,color:rgb(.11,.2,.55)});
   page.drawText("THE RAYNER FOUNDATION",{x:M,y:A4H-34,size:16,font:bold,color:rgb(1,1,1)});
   page.drawText("RIDER APPLICATION FORM 2026",{x:M,y:A4H-48,size:11,font:font,color:rgb(1,1,1)});
+
+  // Use existing data
   const f = formData || {};
+
+  // SECTION 1
   heading("SECTION 1: PERSONAL INFORMATION");
   addField("Full name","name", (f.name||""));
   addField("Date of birth","dob", (f.dob||""), {width:200});
@@ -797,11 +820,15 @@ async function buildFillablePDF(formData) {
   addField("Passport number","passportNo", (f.passportNo||""), {width:250});
   addField("Passport expiry","passportExpiry", (f.passportExpiry||""), {width:200});
   addField("EU arrangements (if applicable)","euArrangements", (f.euArrangements||""), {multiline:true, height:50});
+
+  // SECTION 2
   heading("SECTION 2: RACING ACHIEVEMENTS");
-  const cat = (f.resultsByCategory||f.achievementsByCategory||[]).map(r=>[r?.date||"", r?.competition||"", r?.category||"", r?.placing||""]);
-  table("Results (by category)", ["Date","Competition","Category","Placing"], cat, "resultsByCategory");
-  const stat = (f.resultsByStatus||f.achievementsByStatus||[]).map(r=>[r?.date||"", r?.competition||"", r?.status||"", r?.placing||""]);
-  table("Other events (by status)", ["Date","Competition","Status","Placing"], stat, "resultsByStatus");
+  const byCat = (f.resultsByCategory||f.achievementsByCategory||[]).map(r=>[r?.date||"", r?.competition||"", r?.category||"", r?.placing||""]);
+  table("Results (by category)", ["Date","Competition","Category","Placing"], byCat, "resultsByCategory");
+  const byStatus = (f.resultsByStatus||f.achievementsByStatus||[]).map(r=>[r?.date||"", r?.competition||"", r?.status||"", r?.placing||""]);
+  table("Other events (by status)", ["Date","Competition","Status","Placing"], byStatus, "resultsByStatus");
+
+  // SECTION 3
   heading("SECTION 3: PLACEMENT INFORMATION");
   addField("Team / Club name","teamName", (f.teamName||f.team||""));
   addField("Country","teamCountry", (f.teamCountry||f.country||""), {width:250});
@@ -811,13 +838,19 @@ async function buildFillablePDF(formData) {
   addField("Contact email","teamContactEmail", (f.teamContactEmail||f.contactEmail||""), {width:300});
   addField("Category","teamCategory", (f.teamCategory||""), {width:250});
   addField("90-day rule / notes","ninetyDayRule", (f.ninetyDayRule||""), {multiline:true, height:50});
+
+  // SECTION 4
   heading("SECTION 4: FUNDING INFORMATION");
   addField("Amount requested (£)","fundingAmount", (f.fundingAmount||""), {width:220});
   addField("Funding breakdown / justification","fundingDetails", (f.fundingDetails||""), {multiline:true, height:80});
+
+  // SECTION 5
   heading("SECTION 5: IN YOUR OWN WORDS");
   addField("Tell us about yourself, your goals and plans for the season.","inYourOwnWords", (f.inYourOwnWords||f.personalStatement||""), {multiline:true, height:160});
+
+  // Declaration
   heading("DECLARATION");
-  y-=14; page.drawText("I confirm that the information provided in this form is accurate to the best of my knowledge.",{x:M,y,size:11,font});
+  y -= 14; page.drawText("I confirm that the information provided in this form is accurate to the best of my knowledge.", {x:M,y,size:11,font});
   ensure(48);
   const sigY = y - 10, sigW = 280;
   page.drawText("Applicant signature:", { x:M, y:sigY+24, size:11, font:bold });
@@ -826,8 +859,26 @@ async function buildFillablePDF(formData) {
   page.drawText("Date:", { x:M+sigW+20, y:sigY+24, size:11, font:bold });
   page.drawRectangle({ x:M+sigW+20, y:sigY, width:100, height:20, borderColor:rgb(.7,.7,.7), borderWidth:.8 });
   form.createTextField("signatureDate").addToPage(page,{ x:M+sigW+22, y:sigY+2, width:96, height:16 });
+
   return new Blob([await pdf.save()], { type: "application/pdf" });
 }
+</script>
+
+<script>
+window.handleDownloadPDF = async function () {
+  try {
+    window.formData = window.formData || { name: "Applicant" };
+    const blob = await buildFillablePDF(window.formData);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `Rayner_Fillable_Application_${(window.formData.name||'Form').replace(/\s+/g,'_')}_2026.pdf`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  } catch (e) {
+    console.error('Fillable PDF generation failed:', e);
+    alert('Generating the fillable PDF failed. See console for details.');
+  }
+};
 </script>
 </body>
 </html>
