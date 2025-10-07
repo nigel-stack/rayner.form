@@ -72,88 +72,144 @@
             <style>
               @page {
                 size: A4;
-                margin: 2cm;
+                margin: 1.5cm;
               }
               body {
-                font-family: Calibri, Arial, sans-serif;
-                font-size: 11pt;
-                line-height: 1.4;
-                color: #000000;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+                font-size: 10pt;
+                line-height: 1.3;
+                color: #374151;
+                background: #ffffff;
               }
               .header {
                 text-align: center;
                 background-color: #1e3a8a;
                 color: white;
-                padding: 20px;
-                margin-bottom: 20px;
+                padding: 25px 15px;
+                margin-bottom: 25px;
+                border-radius: 8px;
               }
               .header h1 {
-                font-size: 24pt;
+                font-size: 26pt;
                 font-weight: bold;
-                margin: 0 0 10px 0;
+                margin: 0 0 8px 0;
+                letter-spacing: 0.5px;
               }
               .header h2 {
-                font-size: 16pt;
+                font-size: 15pt;
                 margin: 0;
+                font-weight: 500;
               }
               .section-title {
                 color: #1e3a8a;
-                font-size: 14pt;
+                font-size: 16pt;
                 font-weight: bold;
-                margin-top: 20px;
-                margin-bottom: 15px;
-                border-bottom: 2px solid #1e3a8a;
-                padding-bottom: 5px;
+                margin-top: 25px;
+                margin-bottom: 18px;
+                padding-bottom: 8px;
+                border-bottom: 3px solid #1e3a8a;
               }
               .field-label {
-                font-weight: bold;
-                font-size: 10pt;
-                color: #333333;
-                margin-top: 10px;
-                margin-bottom: 3px;
+                font-weight: 600;
+                font-size: 9pt;
+                color: #374151;
+                margin-bottom: 4px;
+                display: block;
               }
               .field-value {
                 border: 1px solid #d1d5db;
-                padding: 8px;
+                padding: 10px;
                 background-color: #f9fafb;
-                margin-bottom: 10px;
-                min-height: 20px;
+                margin-bottom: 12px;
+                min-height: 24px;
+                border-radius: 4px;
+                font-size: 10pt;
               }
-              table {
+              .grid-container {
+                width: 100%;
+                margin-bottom: 12px;
+              }
+              .grid-3 {
                 width: 100%;
                 border-collapse: collapse;
-                margin-bottom: 15px;
               }
-              th, td {
-                border: 1px solid #333;
-                padding: 8px;
+              .grid-3 td {
+                width: 33.33%;
+                padding-right: 12px;
+                vertical-align: top;
+                border: none;
+              }
+              .grid-3 td:last-child {
+                padding-right: 0;
+              }
+              .grid-2 {
+                width: 100%;
+                border-collapse: collapse;
+              }
+              .grid-2 td {
+                width: 50%;
+                padding-right: 12px;
+                vertical-align: top;
+                border: none;
+              }
+              .grid-2 td:last-child {
+                padding-right: 0;
+              }
+              table.data-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+              }
+              table.data-table th,
+              table.data-table td {
+                border: 1px solid #d1d5db;
+                padding: 10px;
                 text-align: left;
+                font-size: 9pt;
               }
-              th {
+              table.data-table th {
                 background-color: #f3f4f6;
                 font-weight: bold;
+                color: #1f2937;
+              }
+              table.data-table td {
+                background-color: #f9fafb;
               }
               .info-box {
                 background-color: #eff6ff;
                 border-left: 4px solid #3b82f6;
-                padding: 12px;
+                padding: 15px;
+                margin-top: 25px;
+                border-radius: 4px;
+              }
+              .subsection-title {
+                color: #1e3a8a;
+                font-size: 14pt;
+                font-weight: bold;
                 margin-top: 20px;
+                margin-bottom: 12px;
               }
-              .row {
-                display: table;
-                width: 100%;
-                margin-bottom: 10px;
+              .note-text {
+                font-size: 9pt;
+                color: #6b7280;
+                margin-bottom: 12px;
               }
-              .col {
-                display: table-cell;
-                padding-right: 10px;
-                vertical-align: top;
+              .funding-question {
+                margin-bottom: 18px;
+                page-break-inside: avoid;
               }
-              .col-3 {
-                width: 33%;
+              .funding-label {
+                font-weight: 600;
+                font-size: 10pt;
+                color: #374151;
+                margin-bottom: 8px;
               }
-              .col-2 {
-                width: 50%;
+              .funding-response {
+                border: 1px solid #d1d5db;
+                padding: 10px;
+                background-color: #f9fafb;
+                border-radius: 4px;
+                margin-bottom: 6px;
               }
             </style>
           </head>
@@ -167,119 +223,133 @@
             <!-- SECTION 1: PERSONAL INFORMATION -->
             <h3 class="section-title">PERSONAL INFORMATION</h3>
             
-            <div class="row">
-              <div class="col col-3">
-                <div class="field-label">Name *</div>
-                <div class="field-value">${formData.name || '&nbsp;'}</div>
-              </div>
-              <div class="col col-3">
-                <div class="field-label">Date of Birth *</div>
-                <div class="field-value">${formData.dob || '&nbsp;'}</div>
-              </div>
-              <div class="col col-3">
-                <div class="field-label">Place of Birth</div>
-                <div class="field-value">${formData.pob || '&nbsp;'}</div>
-              </div>
-            </div>
+            <table class="grid-3">
+              <tr>
+                <td>
+                  <span class="field-label">Name *</span>
+                  <div class="field-value">${formData.name || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">Date of Birth *</span>
+                  <div class="field-value">${formData.dob || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">Place of Birth</span>
+                  <div class="field-value">${formData.pob || '&nbsp;'}</div>
+                </td>
+              </tr>
+            </table>
 
-            <div class="field-label">Address *</div>
+            <span class="field-label">Address *</span>
             <div class="field-value">${formData.address || '&nbsp;'}</div>
 
-            <div class="row">
-              <div class="col col-3">
-                <div class="field-label">Home Telephone</div>
-                <div class="field-value">${formData.homeTelephone || '&nbsp;'}</div>
-              </div>
-              <div class="col col-3">
-                <div class="field-label">Mobile *</div>
-                <div class="field-value">${formData.mobile || '&nbsp;'}</div>
-              </div>
-              <div class="col col-3">
-                <div class="field-label">Email *</div>
-                <div class="field-value">${formData.email || '&nbsp;'}</div>
-              </div>
-            </div>
+            <table class="grid-3">
+              <tr>
+                <td>
+                  <span class="field-label">Home Telephone</span>
+                  <div class="field-value">${formData.homeTelephone || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">Mobile *</span>
+                  <div class="field-value">${formData.mobile || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">Email *</span>
+                  <div class="field-value">${formData.email || '&nbsp;'}</div>
+                </td>
+              </tr>
+            </table>
 
-            <div class="row">
-              <div class="col col-2">
-                <div class="field-label">Current Team</div>
-                <div class="field-value">${formData.currentTeam || '&nbsp;'}</div>
-              </div>
-              <div class="col col-2">
-                <div class="field-label">BC Membership No</div>
-                <div class="field-value">${formData.bcMembership || '&nbsp;'}</div>
-              </div>
-            </div>
+            <table class="grid-2">
+              <tr>
+                <td>
+                  <span class="field-label">Current Team</span>
+                  <div class="field-value">${formData.currentTeam || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">BC Membership No</span>
+                  <div class="field-value">${formData.bcMembership || '&nbsp;'}</div>
+                </td>
+              </tr>
+            </table>
 
-            <div class="row">
-              <div class="col col-3">
-                <div class="field-label">UCI Number</div>
-                <div class="field-value">${formData.uciNumber || '&nbsp;'}</div>
-              </div>
-              <div class="col col-3">
-                <div class="field-label">BC Ranking Category</div>
-                <div class="field-value">${formData.bcRanking || '&nbsp;'}</div>
-              </div>
-              <div class="col col-3">
-                <div class="field-label">World Ranking</div>
-                <div class="field-value">${formData.worldRanking || '&nbsp;'}</div>
-              </div>
-            </div>
+            <table class="grid-3">
+              <tr>
+                <td>
+                  <span class="field-label">UCI Number</span>
+                  <div class="field-value">${formData.uciNumber || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">BC Ranking Category</span>
+                  <div class="field-value">${formData.bcRanking || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">World Ranking</span>
+                  <div class="field-value">${formData.worldRanking || '&nbsp;'}</div>
+                </td>
+              </tr>
+            </table>
 
-            <div class="row">
-              <div class="col col-2">
-                <div class="field-label">Coach Name</div>
-                <div class="field-value">${formData.coachName || '&nbsp;'}</div>
-              </div>
-              <div class="col col-2">
-                <div class="field-label">Coach Contact</div>
-                <div class="field-value">${formData.coachContact || '&nbsp;'}</div>
-              </div>
-            </div>
+            <table class="grid-2">
+              <tr>
+                <td>
+                  <span class="field-label">Coach Name</span>
+                  <div class="field-value">${formData.coachName || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">Coach Contact</span>
+                  <div class="field-value">${formData.coachContact || '&nbsp;'}</div>
+                </td>
+              </tr>
+            </table>
 
-            <div class="row">
-              <div class="col col-2">
-                <div class="field-label">Agent Name</div>
-                <div class="field-value">${formData.agentName || '&nbsp;'}</div>
-              </div>
-              <div class="col col-2">
-                <div class="field-label">Agent Contact</div>
-                <div class="field-value">${formData.agentContact || '&nbsp;'}</div>
-              </div>
-            </div>
+            <table class="grid-2">
+              <tr>
+                <td>
+                  <span class="field-label">Agent Name</span>
+                  <div class="field-value">${formData.agentName || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">Agent Contact</span>
+                  <div class="field-value">${formData.agentContact || '&nbsp;'}</div>
+                </td>
+              </tr>
+            </table>
 
-            <div class="row">
-              <div class="col col-3">
-                <div class="field-label">National Insurance No</div>
-                <div class="field-value">${formData.nationalInsurance || '&nbsp;'}</div>
-              </div>
-              <div class="col col-3">
-                <div class="field-label">Passport No</div>
-                <div class="field-value">${formData.passportNo || '&nbsp;'}</div>
-              </div>
-              <div class="col col-3">
-                <div class="field-label">Passport Expiry</div>
-                <div class="field-value">${formData.passportExpiry || '&nbsp;'}</div>
-              </div>
-            </div>
+            <table class="grid-3">
+              <tr>
+                <td>
+                  <span class="field-label">National Insurance No</span>
+                  <div class="field-value">${formData.nationalInsurance || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">Passport No</span>
+                  <div class="field-value">${formData.passportNo || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">Passport Expiry</span>
+                  <div class="field-value">${formData.passportExpiry || '&nbsp;'}</div>
+                </td>
+              </tr>
+            </table>
 
-            <div class="field-label">Second Nationality?</div>
+            <span class="field-label">Second Nationality?</span>
             <div class="field-value">${formData.secondNationality || '&nbsp;'}</div>
 
-            <div class="field-label">EU Arrangements</div>
+            <span class="field-label">EU Arrangements</span>
             <div class="field-value">${formData.euArrangements || '&nbsp;'}</div>
 
             <!-- SECTION 2: RACING ACHIEVEMENTS -->
             <h3 class="section-title">RACING ACHIEVEMENTS - Last 12 Months</h3>
-            <p style="margin-bottom: 10px;">Best 10 results in order of success</p>
+            <p class="note-text">Best 10 results in order of success</p>
             
-            <table>
+            <table class="data-table">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Competition</th>
-                  <th>Category</th>
-                  <th>Placing</th>
+                  <th style="width: 15%;">Date</th>
+                  <th style="width: 45%;">Competition</th>
+                  <th style="width: 20%;">Category</th>
+                  <th style="width: 20%;">Placing</th>
                 </tr>
               </thead>
               <tbody>
@@ -294,15 +364,15 @@
               </tbody>
             </table>
 
-            <h3 class="section-title">BEST 3 CAREER ACHIEVEMENTS</h3>
+            <h3 class="subsection-title">BEST 3 CAREER ACHIEVEMENTS</h3>
             
-            <table>
+            <table class="data-table">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Competition</th>
-                  <th>Status</th>
-                  <th>Placing</th>
+                  <th style="width: 15%;">Date</th>
+                  <th style="width: 40%;">Competition</th>
+                  <th style="width: 25%;">Status</th>
+                  <th style="width: 20%;">Placing</th>
                 </tr>
               </thead>
               <tbody>
@@ -320,40 +390,44 @@
             <!-- SECTION 3: PLACEMENT INFORMATION -->
             <h3 class="section-title">PLACEMENT INFORMATION</h3>
             
-            <div class="row">
-              <div class="col col-2">
-                <div class="field-label">Team Name</div>
-                <div class="field-value">${formData.teamName || '&nbsp;'}</div>
-              </div>
-              <div class="col col-2">
-                <div class="field-label">Team Contact</div>
-                <div class="field-value">${formData.teamContact || '&nbsp;'}</div>
-              </div>
-            </div>
+            <table class="grid-2">
+              <tr>
+                <td>
+                  <span class="field-label">Team Name</span>
+                  <div class="field-value">${formData.teamName || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">Team Contact</span>
+                  <div class="field-value">${formData.teamContact || '&nbsp;'}</div>
+                </td>
+              </tr>
+            </table>
 
-            <div class="field-label">Team Location</div>
+            <span class="field-label">Team Location</span>
             <div class="field-value">${formData.teamLocation || '&nbsp;'}</div>
 
-            <div class="row">
-              <div class="col col-3">
-                <div class="field-label">Team Phone</div>
-                <div class="field-value">${formData.teamPhone || '&nbsp;'}</div>
-              </div>
-              <div class="col col-3">
-                <div class="field-label">Team Email</div>
-                <div class="field-value">${formData.teamEmail || '&nbsp;'}</div>
-              </div>
-              <div class="col col-3">
-                <div class="field-label">Team Category</div>
-                <div class="field-value">${formData.teamCategory || '&nbsp;'}</div>
-              </div>
-            </div>
+            <table class="grid-3">
+              <tr>
+                <td>
+                  <span class="field-label">Team Phone</span>
+                  <div class="field-value">${formData.teamPhone || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">Team Email</span>
+                  <div class="field-value">${formData.teamEmail || '&nbsp;'}</div>
+                </td>
+                <td>
+                  <span class="field-label">Team Category</span>
+                  <div class="field-value">${formData.teamCategory || '&nbsp;'}</div>
+                </td>
+              </tr>
+            </table>
 
-            <div class="field-label">90 Day Rule Agreement</div>
+            <span class="field-label">90 Day Rule Agreement</span>
             <div class="field-value">${formData.ninetyDayRule || '&nbsp;'}</div>
 
-            <h3 class="section-title">FUNDING INFORMATION</h3>
-            <p style="margin-bottom: 15px;">Answer these questions completely and truthfully</p>
+            <h3 class="subsection-title">FUNDING INFORMATION</h3>
+            <p class="note-text">Answer these questions completely and truthfully</p>
 
             ${[
               ['accommodationProvided', 'accommodationProvidedInfo', 'Is your accommodation provided?'],
@@ -366,20 +440,30 @@
               ['repayment', 'repaymentInfo', 'Expected to repay any support?'],
               ['otherSupport', 'otherSupportInfo', 'Any other income or support sources?']
             ].map(([field, infoField, label]) => `
-              <div class="field-label">${label}</div>
-              <div style="margin-bottom: 10px;">
-                <strong>Y/N:</strong> ${formData[field] || '&nbsp;'}<br/>
-                <strong>Further Information:</strong> ${formData[infoField] || '&nbsp;'}
+              <div class="funding-question">
+                <div class="funding-label">${label}</div>
+                <table class="grid-2">
+                  <tr>
+                    <td style="width: 15%;">
+                      <span class="field-label">Y/N</span>
+                      <div class="funding-response">${formData[field] || '&nbsp;'}</div>
+                    </td>
+                    <td style="width: 85%;">
+                      <span class="field-label">Further Information</span>
+                      <div class="funding-response">${formData[infoField] || '&nbsp;'}</div>
+                    </td>
+                  </tr>
+                </table>
               </div>
             `).join('')}
 
             <!-- SECTION 4: IN YOUR OWN WORDS -->
             <h3 class="section-title">IN YOUR OWN WORDS</h3>
-            <p style="margin-bottom: 10px;">Tell us why you would like to become a Rayner Foundation Rider. How you think the RF could help you at the beginning of your career and just as importantly, how you think you could help the RF from now and throughout your career.</p>
-            <div class="field-value" style="min-height: 100px;">${formData.personalStatement || '&nbsp;'}</div>
+            <p class="note-text">Tell us why you would like to become a Rayner Foundation Rider. How you think the RF could help you at the beginning of your career and just as importantly, how you think you could help the RF from now and throughout your career.</p>
+            <div class="field-value" style="min-height: 120px; padding: 15px; line-height: 1.6;">${formData.personalStatement || '&nbsp;'}</div>
             
             <div class="info-box">
-              <p style="margin: 0;"><strong>Submission Instructions:</strong> Once completed, you can email this form to: <strong>nigelbishop@live.co.uk</strong></p>
+              <p style="margin: 0; font-size: 10pt;"><strong>Submission Instructions:</strong> Once completed, you can email this form to: <strong>nigelbishop@live.co.uk</strong></p>
             </div>
           </body>
           </html>
