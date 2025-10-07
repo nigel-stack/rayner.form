@@ -8,45 +8,9 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body { margin: 0; padding: 0; background: #f9fafb; }
   </style>
-
-<style>
-  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  table { page-break-inside: auto; }
-  tr, thead, tfoot {  }
-  .html2pdf__page-break { page-break-before: always; }
-</style>
-
-<style id="pdf-pagination-fixes">
-  /* Ensure colors render correctly in PDF */
-  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-
-  /* Safer pagination defaults */
-  html, body { margin: 0; padding: 0; }
-  .pdf-section { break-inside: auto; page-break-inside: auto; }
-
-  /* Allow table rows to split if they are too tall for the page */
-  thead, tfoot { page-break-inside: avoid; break-inside: avoid; }
-  tr { page-break-inside: auto; break-inside: auto; }
-  td, th { page-break-inside: auto; break-inside: auto; }
-  p, div { page-break-inside: auto; break-inside: auto; }
-
-  /* Force breaks between major sections without leaving a "band" of blank space */
-  .html2pdf__page-break {
-    break-before: page;
-    page-break-before: always;
-    display: block;
-    height: 0;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    line-height: 0;
-    clear: both;
-  }
-</style>
 </head>
 <body>
   <div id="root"></div>
@@ -99,322 +63,373 @@
         }));
       };
 
-      const generatePDFContent = () => {
+      const generateWordContent = () => {
         return `
-          <div style="padding: 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #374151;">
+          <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+          <head>
+            <meta charset='utf-8'>
+            <title>Rayner Foundation Application Form 2026</title>
+            <style>
+              @page {
+                size: A4;
+                margin: 2cm;
+              }
+              body {
+                font-family: Calibri, Arial, sans-serif;
+                font-size: 11pt;
+                line-height: 1.4;
+                color: #000000;
+              }
+              .header {
+                text-align: center;
+                background-color: #1e3a8a;
+                color: white;
+                padding: 20px;
+                margin-bottom: 20px;
+              }
+              .header h1 {
+                font-size: 24pt;
+                font-weight: bold;
+                margin: 0 0 10px 0;
+              }
+              .header h2 {
+                font-size: 16pt;
+                margin: 0;
+              }
+              .section-title {
+                color: #1e3a8a;
+                font-size: 14pt;
+                font-weight: bold;
+                margin-top: 20px;
+                margin-bottom: 15px;
+                border-bottom: 2px solid #1e3a8a;
+                padding-bottom: 5px;
+              }
+              .field-label {
+                font-weight: bold;
+                font-size: 10pt;
+                color: #333333;
+                margin-top: 10px;
+                margin-bottom: 3px;
+              }
+              .field-value {
+                border: 1px solid #d1d5db;
+                padding: 8px;
+                background-color: #f9fafb;
+                margin-bottom: 10px;
+                min-height: 20px;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 15px;
+              }
+              th, td {
+                border: 1px solid #333;
+                padding: 8px;
+                text-align: left;
+              }
+              th {
+                background-color: #f3f4f6;
+                font-weight: bold;
+              }
+              .info-box {
+                background-color: #eff6ff;
+                border-left: 4px solid #3b82f6;
+                padding: 12px;
+                margin-top: 20px;
+              }
+              .row {
+                display: table;
+                width: 100%;
+                margin-bottom: 10px;
+              }
+              .col {
+                display: table-cell;
+                padding-right: 10px;
+                vertical-align: top;
+              }
+              .col-3 {
+                width: 33%;
+              }
+              .col-2 {
+                width: 50%;
+              }
+            </style>
+          </head>
+          <body>
             <!-- Header -->
-            <div style="text-align: center; background-color: #1e3a8a; color: white; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
-              <h1 style="font-size: 24px; font-weight: bold; margin: 0;">THE RAYNER FOUNDATION</h1>
-              <h2 style="font-size: 16px; margin: 8px 0 0 0;">RIDER APPLICATION FORM 2026</h2>
+            <div class="header">
+              <h1>THE RAYNER FOUNDATION</h1>
+              <h2>RIDER APPLICATION FORM 2026</h2>
             </div>
             
             <!-- SECTION 1: PERSONAL INFORMATION -->
-<div class="pdf-section" style="margin-bottom: 20px; ">
-              <h3 style="color: #1e3a8a; font-size: 16px; font-weight: bold; margin-bottom: 15px;">PERSONAL INFORMATION</h3>
-              
-              <!-- Row 1: Name, DOB, POB -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Name *</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.name || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Date of Birth *</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.dob || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Place of Birth</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.pob || ''}</div>
-                </div>
+            <h3 class="section-title">PERSONAL INFORMATION</h3>
+            
+            <div class="row">
+              <div class="col col-3">
+                <div class="field-label">Name *</div>
+                <div class="field-value">${formData.name || '&nbsp;'}</div>
               </div>
-
-              <!-- Address -->
-              <div style="margin-bottom: 12px;">
-                <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Address *</div>
-                <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 40px; white-space: pre-wrap;">${formData.address || ''}</div>
+              <div class="col col-3">
+                <div class="field-label">Date of Birth *</div>
+                <div class="field-value">${formData.dob || '&nbsp;'}</div>
               </div>
-
-              <!-- Row 2: Phones and Email -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Home Telephone</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.homeTelephone || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Mobile *</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.mobile || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Email *</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.email || ''}</div>
-                </div>
-              </div>
-
-              <!-- Row 3: Team and BC -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Current Team</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.currentTeam || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">BC Membership No</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.bcMembership || ''}</div>
-                </div>
-              </div>
-
-              <!-- Row 4: UCI, Rankings -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">UCI Number</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.uciNumber || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">BC Ranking Category</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.bcRanking || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">World Ranking</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.worldRanking || ''}</div>
-                </div>
-              </div>
-
-              <!-- Row 5: Coach -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Coach Name</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.coachName || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Coach Contact</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.coachContact || ''}</div>
-                </div>
-              </div>
-
-              <!-- Row 6: Agent -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Agent Name</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.agentName || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Agent Contact</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.agentContact || ''}</div>
-                </div>
-              </div>
-
-              <!-- Row 7: NI, Passport -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">National Insurance No</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.nationalInsurance || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Passport No</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.passportNo || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Passport Expiry</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.passportExpiry || ''}</div>
-                </div>
-              </div>
-
-              <!-- Second Nationality -->
-              <div style="margin-bottom: 12px;">
-                <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Second Nationality?</div>
-                <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.secondNationality || ''}</div>
-              </div>
-
-              <!-- EU Arrangements -->
-              <div style="margin-bottom: 12px;">
-                <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">EU Arrangements</div>
-                <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 30px; white-space: pre-wrap;">${formData.euArrangements || ''}</div>
+              <div class="col col-3">
+                <div class="field-label">Place of Birth</div>
+                <div class="field-value">${formData.pob || '&nbsp;'}</div>
               </div>
             </div>
+
+            <div class="field-label">Address *</div>
+            <div class="field-value">${formData.address || '&nbsp;'}</div>
+
+            <div class="row">
+              <div class="col col-3">
+                <div class="field-label">Home Telephone</div>
+                <div class="field-value">${formData.homeTelephone || '&nbsp;'}</div>
+              </div>
+              <div class="col col-3">
+                <div class="field-label">Mobile *</div>
+                <div class="field-value">${formData.mobile || '&nbsp;'}</div>
+              </div>
+              <div class="col col-3">
+                <div class="field-label">Email *</div>
+                <div class="field-value">${formData.email || '&nbsp;'}</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col col-2">
+                <div class="field-label">Current Team</div>
+                <div class="field-value">${formData.currentTeam || '&nbsp;'}</div>
+              </div>
+              <div class="col col-2">
+                <div class="field-label">BC Membership No</div>
+                <div class="field-value">${formData.bcMembership || '&nbsp;'}</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col col-3">
+                <div class="field-label">UCI Number</div>
+                <div class="field-value">${formData.uciNumber || '&nbsp;'}</div>
+              </div>
+              <div class="col col-3">
+                <div class="field-label">BC Ranking Category</div>
+                <div class="field-value">${formData.bcRanking || '&nbsp;'}</div>
+              </div>
+              <div class="col col-3">
+                <div class="field-label">World Ranking</div>
+                <div class="field-value">${formData.worldRanking || '&nbsp;'}</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col col-2">
+                <div class="field-label">Coach Name</div>
+                <div class="field-value">${formData.coachName || '&nbsp;'}</div>
+              </div>
+              <div class="col col-2">
+                <div class="field-label">Coach Contact</div>
+                <div class="field-value">${formData.coachContact || '&nbsp;'}</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col col-2">
+                <div class="field-label">Agent Name</div>
+                <div class="field-value">${formData.agentName || '&nbsp;'}</div>
+              </div>
+              <div class="col col-2">
+                <div class="field-label">Agent Contact</div>
+                <div class="field-value">${formData.agentContact || '&nbsp;'}</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col col-3">
+                <div class="field-label">National Insurance No</div>
+                <div class="field-value">${formData.nationalInsurance || '&nbsp;'}</div>
+              </div>
+              <div class="col col-3">
+                <div class="field-label">Passport No</div>
+                <div class="field-value">${formData.passportNo || '&nbsp;'}</div>
+              </div>
+              <div class="col col-3">
+                <div class="field-label">Passport Expiry</div>
+                <div class="field-value">${formData.passportExpiry || '&nbsp;'}</div>
+              </div>
+            </div>
+
+            <div class="field-label">Second Nationality?</div>
+            <div class="field-value">${formData.secondNationality || '&nbsp;'}</div>
+
+            <div class="field-label">EU Arrangements</div>
+            <div class="field-value">${formData.euArrangements || '&nbsp;'}</div>
 
             <!-- SECTION 2: RACING ACHIEVEMENTS -->
-<div class="pdf-section html2pdf__page-break"></div>
-<div style="margin-bottom: 20px; ">
-              <h3 style="color: #1e3a8a; font-size: 16px; font-weight: bold; margin-bottom: 10px;">RACING ACHIEVEMENTS - Last 12 Months</h3>
-              <p style="font-size: 9px; color: #6b7280; margin-bottom: 10px;">Best 10 results in order of success</p>
-              
-              <table style="width: 100%; border-collapse: collapse; border: 1px solid #d1d5db; margin-bottom: 15px;">
-                <thead>
-                  <tr style="background-color: #f3f4f6;">
-                    <th style="border: 1px solid #d1d5db; padding: 6px; text-align: left; font-size: 9px; font-weight: 600;">Date</th>
-                    <th style="border: 1px solid #d1d5db; padding: 6px; text-align: left; font-size: 9px; font-weight: 600;">Competition</th>
-                    <th style="border: 1px solid #d1d5db; padding: 6px; text-align: left; font-size: 9px; font-weight: 600;">Category</th>
-                    <th style="border: 1px solid #d1d5db; padding: 6px; text-align: left; font-size: 9px; font-weight: 600;">Placing</th>
+            <h3 class="section-title">RACING ACHIEVEMENTS - Last 12 Months</h3>
+            <p style="margin-bottom: 10px;">Best 10 results in order of success</p>
+            
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Competition</th>
+                  <th>Category</th>
+                  <th>Placing</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${formData.recentResults.map(r => `
+                  <tr>
+                    <td>${r.date || '&nbsp;'}</td>
+                    <td>${r.competition || '&nbsp;'}</td>
+                    <td>${r.category || '&nbsp;'}</td>
+                    <td>${r.placing || '&nbsp;'}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  ${formData.recentResults.map(r => `
-                    <tr>
-                      <td style="border: 1px solid #d1d5db; padding: 6px; font-size: 9px; background: #f9fafb;">${r.date || ''}</td>
-                      <td style="border: 1px solid #d1d5db; padding: 6px; font-size: 9px; background: #f9fafb;">${r.competition || ''}</td>
-                      <td style="border: 1px solid #d1d5db; padding: 6px; font-size: 9px; background: #f9fafb;">${r.category || ''}</td>
-                      <td style="border: 1px solid #d1d5db; padding: 6px; font-size: 9px; background: #f9fafb;">${r.placing || ''}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
+                `).join('')}
+              </tbody>
+            </table>
 
-              <h3 style="color: #1e3a8a; font-size: 16px; font-weight: bold; margin-bottom: 10px; margin-top: 20px;">BEST 3 CAREER ACHIEVEMENTS</h3>
-              
-              <table style="width: 100%; border-collapse: collapse; border: 1px solid #d1d5db;">
-                <thead>
-                  <tr style="background-color: #f3f4f6;">
-                    <th style="border: 1px solid #d1d5db; padding: 6px; text-align: left; font-size: 9px; font-weight: 600;">Date</th>
-                    <th style="border: 1px solid #d1d5db; padding: 6px; text-align: left; font-size: 9px; font-weight: 600;">Competition</th>
-                    <th style="border: 1px solid #d1d5db; padding: 6px; text-align: left; font-size: 9px; font-weight: 600;">Status</th>
-                    <th style="border: 1px solid #d1d5db; padding: 6px; text-align: left; font-size: 9px; font-weight: 600;">Placing</th>
+            <h3 class="section-title">BEST 3 CAREER ACHIEVEMENTS</h3>
+            
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Competition</th>
+                  <th>Status</th>
+                  <th>Placing</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${formData.careerResults.map(r => `
+                  <tr>
+                    <td>${r.date || '&nbsp;'}</td>
+                    <td>${r.competition || '&nbsp;'}</td>
+                    <td>${r.status || '&nbsp;'}</td>
+                    <td>${r.placing || '&nbsp;'}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  ${formData.careerResults.map(r => `
-                    <tr>
-                      <td style="border: 1px solid #d1d5db; padding: 6px; font-size: 9px; background: #f9fafb;">${r.date || ''}</td>
-                      <td style="border: 1px solid #d1d5db; padding: 6px; font-size: 9px; background: #f9fafb;">${r.competition || ''}</td>
-                      <td style="border: 1px solid #d1d5db; padding: 6px; font-size: 9px; background: #f9fafb;">${r.status || ''}</td>
-                      <td style="border: 1px solid #d1d5db; padding: 6px; font-size: 9px; background: #f9fafb;">${r.placing || ''}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
+                `).join('')}
+              </tbody>
+            </table>
 
             <!-- SECTION 3: PLACEMENT INFORMATION -->
-<div class="pdf-section html2pdf__page-break"></div>
-<div style="margin-bottom: 20px; ">
-              <h3 style="color: #1e3a8a; font-size: 16px; font-weight: bold; margin-bottom: 15px;">PLACEMENT INFORMATION</h3>
-              
-              <!-- Team Name and Contact -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Team Name</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.teamName || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Team Contact</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.teamContact || ''}</div>
-                </div>
+            <h3 class="section-title">PLACEMENT INFORMATION</h3>
+            
+            <div class="row">
+              <div class="col col-2">
+                <div class="field-label">Team Name</div>
+                <div class="field-value">${formData.teamName || '&nbsp;'}</div>
               </div>
-
-              <!-- Team Location -->
-              <div style="margin-bottom: 12px;">
-                <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Team Location</div>
-                <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 30px; white-space: pre-wrap;">${formData.teamLocation || ''}</div>
+              <div class="col col-2">
+                <div class="field-label">Team Contact</div>
+                <div class="field-value">${formData.teamContact || '&nbsp;'}</div>
               </div>
-
-              <!-- Team Details -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Team Phone</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.teamPhone || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Team Email</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.teamEmail || ''}</div>
-                </div>
-                <div>
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">Team Category</div>
-                  <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 20px;">${formData.teamCategory || ''}</div>
-                </div>
-              </div>
-
-              <!-- 90 Day Rule -->
-              <div style="margin-bottom: 12px;">
-                <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 4px;">If you are restricted by the 90 day rule and are not available for the whole season, please provide written agreement from your team.</div>
-                <div style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 30px; white-space: pre-wrap;">${formData.ninetyDayRule || ''}</div>
-              </div>
-
-              <h3 style="color: #1e3a8a; font-size: 16px; font-weight: bold; margin-bottom: 10px; margin-top: 20px;">FUNDING INFORMATION</h3><p style="font-size: 9px; color: #6b7280; margin-bottom: 15px;">Answer these questions completely and truthfully</p>
-
-              ${[
-                ['accommodationProvided', 'accommodationProvidedInfo', 'Is your accommodation provided?'],
-                ['accommodationCharged', 'accommodationChargedInfo', 'Is your accommodation charged? How much?'],
-                ['accommodationUpkeep', 'accommodationUpkeepInfo', 'Do you contribute to accommodation upkeep?'],
-                ['dailyFood', 'dailyFoodInfo', 'Do you pay for daily food? How much?'],
-                ['travelArrangement', 'travelArrangementInfo', 'Will you have to pay to travel to races? Please provide details'],
-                ['equipment', 'equipmentInfo', 'Do you receive equipment from team?'],
-                ['wageSalary', 'wageSalaryInfo', 'Do you receive a wage/salary? How much per annum?'],
-                ['repayment', 'repaymentInfo', 'Will you be expected to repay any support costs?'],
-                ['otherSupport', 'otherSupportInfo', 'Do you have any other income or support sources? Please give details below']
-              ].map(([field, infoField, label]) => `
-                <div style="margin-bottom: 12px;">
-                  <div style="font-size: 9px; font-weight: 600; color: #374151; margin-bottom: 6px;">${label}</div>
-                  <div style="display: grid; grid-template-columns: 80px 1fr; gap: 8px;">
-                    <div>
-                      <div style="font-size: 8px; color: #6b7280; margin-bottom: 2px;">Y/N</div>
-                      <div style="padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; font-size: 9px;">${formData[field] || ''}</div>
-                    </div>
-                    <div>
-                      <div style="font-size: 8px; color: #6b7280; margin-bottom: 2px;">Further Information</div>
-                      <div style="padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 24px; font-size: 9px; white-space: pre-wrap;">${formData[infoField] || ''}</div>
-                    </div>
-                  </div>
-                </div>
-              `).join('')}
             </div>
+
+            <div class="field-label">Team Location</div>
+            <div class="field-value">${formData.teamLocation || '&nbsp;'}</div>
+
+            <div class="row">
+              <div class="col col-3">
+                <div class="field-label">Team Phone</div>
+                <div class="field-value">${formData.teamPhone || '&nbsp;'}</div>
+              </div>
+              <div class="col col-3">
+                <div class="field-label">Team Email</div>
+                <div class="field-value">${formData.teamEmail || '&nbsp;'}</div>
+              </div>
+              <div class="col col-3">
+                <div class="field-label">Team Category</div>
+                <div class="field-value">${formData.teamCategory || '&nbsp;'}</div>
+              </div>
+            </div>
+
+            <div class="field-label">90 Day Rule Agreement</div>
+            <div class="field-value">${formData.ninetyDayRule || '&nbsp;'}</div>
+
+            <h3 class="section-title">FUNDING INFORMATION</h3>
+            <p style="margin-bottom: 15px;">Answer these questions completely and truthfully</p>
+
+            ${[
+              ['accommodationProvided', 'accommodationProvidedInfo', 'Is your accommodation provided?'],
+              ['accommodationCharged', 'accommodationChargedInfo', 'Is your accommodation charged? How much?'],
+              ['accommodationUpkeep', 'accommodationUpkeepInfo', 'Do you contribute to accommodation upkeep?'],
+              ['dailyFood', 'dailyFoodInfo', 'Do you pay for daily food? How much?'],
+              ['travelArrangement', 'travelArrangementInfo', 'How will you travel to races? Who pays?'],
+              ['equipment', 'equipmentInfo', 'Do you receive equipment from team?'],
+              ['wageSalary', 'wageSalaryInfo', 'Do you receive a wage/salary? How much per annum?'],
+              ['repayment', 'repaymentInfo', 'Expected to repay any support?'],
+              ['otherSupport', 'otherSupportInfo', 'Any other income or support sources?']
+            ].map(([field, infoField, label]) => `
+              <div class="field-label">${label}</div>
+              <div style="margin-bottom: 10px;">
+                <strong>Y/N:</strong> ${formData[field] || '&nbsp;'}<br/>
+                <strong>Further Information:</strong> ${formData[infoField] || '&nbsp;'}
+              </div>
+            `).join('')}
 
             <!-- SECTION 4: IN YOUR OWN WORDS -->
-<div class="pdf-section html2pdf__page-break"></div>
-<div style="margin-bottom: 20px; ">
-              <h3 style="color: #1e3a8a; font-size: 16px; font-weight: bold; margin-bottom: 10px;">IN YOUR OWN WORDS</h3><div style="font-size: 9px; color: #374151; margin-bottom: 8px;">Tell us why you would like to become a Rayner Foundation Rider. How you think the RF could help you at the beginning of your career and just as importantly, how you think you could help the RF from now and throughout your career.</div>
-              <div style="padding: 12px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; min-height: 120px; font-size: 10px; line-height: 1.6; white-space: pre-wrap;">${formData.personalStatement || ''}</div>
-              
-              <div style="margin-top: 20px; padding: 12px; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 4px;">
-                <p style="font-size: 9px; color: #1e40af; margin: 0;"><strong>Submission Instructions:</strong> Once completed, you can email this form to: <span style="font-family: monospace;">nigelbishop@live.co.uk</span></p>
-              </div>
+            <h3 class="section-title">IN YOUR OWN WORDS</h3>
+            <p style="margin-bottom: 10px;">Tell us why you would like to become a Rayner Foundation Rider. How you think the RF could help you at the beginning of your career and just as importantly, how you think you could help the RF from now and throughout your career.</p>
+            <div class="field-value" style="min-height: 100px;">${formData.personalStatement || '&nbsp;'}</div>
+            
+            <div class="info-box">
+              <p style="margin: 0;"><strong>Submission Instructions:</strong> Once completed, you can email this form to: <strong>nigelbishop@live.co.uk</strong></p>
             </div>
-          </div>
+          </body>
+          </html>
         `;
       };
 
-      const handleDownloadPDF = async () => {
+      const handleDownloadWord = () => {
         setIsGenerating(true);
         
-        const element = document.createElement('div');
-        element.innerHTML = generatePDFContent();
-
-        const opt = {
-          margin: [6, 8, 12, 8],
-          filename: `Rayner_Application_${(formData.name || 'Form').replace(/\s+/g, '_')}_2026.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, logging: false, useCORS: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak: { mode: ['css'], before: '.html2pdf__page-break' }
-        };
-
         try {
-          await html2pdf().set(opt).from(element).save();
+          const content = generateWordContent();
+          const blob = new Blob(['\ufeff', content], {
+            type: 'application/msword'
+          });
+          
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `Rayner_Application_${formData.name.replace(/\s+/g, '_') || 'Form'}_2026.doc`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
         } catch (error) {
-          console.error('PDF Error:', error);
-          alert('Error generating PDF. Please try again.');
+          console.error('Word Document Error:', error);
+          alert('Error generating Word document. Please try again.');
         } finally {
           setIsGenerating(false);
         }
       };
 
-      const handleEmailWithPDF = async () => {
+      const handleEmailWithWord = () => {
         setIsGenerating(true);
         
-        // First generate and download the PDF
-        const element = document.createElement('div');
-        element.innerHTML = generatePDFContent();
-
-        const filename = `Rayner_Application_${formData.name.replace(/\s+/g, '_') || 'Form'}_2026.pdf`;
-        
-        const opt = {
-          margin: [6, 8, 12, 8],
-          filename: filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, logging: false, useCORS: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak: { mode: ['css'], before: '.html2pdf__page-break' }
-        };
-
         try {
-          await html2pdf().set(opt).from(element).save();
+          // Generate and download the Word document
+          const content = generateWordContent();
+          const blob = new Blob(['\ufeff', content], {
+            type: 'application/msword'
+          });
+          
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          const filename = `Rayner_Application_${formData.name.replace(/\s+/g, '_') || 'Form'}_2026.doc`;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
           
           // Wait a moment for download to start, then open email
           setTimeout(() => {
@@ -423,7 +438,7 @@
 
 Please find attached my completed application form for the Rayner Foundation Rider Programme 2026.
 
-The PDF file "${filename}" should be in your Downloads folder. Please attach it to this email before sending.
+The Word document "${filename}" should be in your Downloads folder. Please attach it to this email before sending.
 
 Applicant Name: ${formData.name}
 Email: ${formData.email}
@@ -432,12 +447,12 @@ Mobile: ${formData.mobile}
 Best regards,
 ${formData.name}`);
             
-            window.location.href = `mailto:applications@rayner.fund;joscelinryan@hotmail.com?subject=${subject}&body=${body}`;
+            window.location.href = `mailto:nigelbishop@live.co.uk?subject=${subject}&body=${body}`;
             setIsGenerating(false);
           }, 1000);
         } catch (error) {
-          console.error('PDF Error:', error);
-          alert('Error generating PDF. Please try again.');
+          console.error('Word Document Error:', error);
+          alert('Error generating Word document. Please try again.');
           setIsGenerating(false);
         }
       };
@@ -454,11 +469,11 @@ ${formData.name}`);
         ['accommodationCharged', 'accommodationChargedInfo', 'Is your accommodation charged? How much?'],
         ['accommodationUpkeep', 'accommodationUpkeepInfo', 'Do you contribute to accommodation upkeep?'],
         ['dailyFood', 'dailyFoodInfo', 'Do you pay for daily food? How much?'],
-        ['travelArrangement', 'travelArrangementInfo', 'Will you have to pay to travel to races? Please provide details'],
+        ['travelArrangement', 'travelArrangementInfo', 'How will you travel to races? Who pays?'],
         ['equipment', 'equipmentInfo', 'Do you receive equipment from team?'],
         ['wageSalary', 'wageSalaryInfo', 'Do you receive a wage/salary? How much per annum?'],
-        ['repayment', 'repaymentInfo', 'Will you be expected to repay any support costs?'],
-        ['otherSupport', 'otherSupportInfo', 'Do you have any other income or support sources? Please give details below']
+        ['repayment', 'repaymentInfo', 'Expected to repay any support?'],
+        ['otherSupport', 'otherSupportInfo', 'Any other income or support sources?']
       ];
 
       return (
@@ -488,7 +503,6 @@ ${formData.name}`);
             </div>
 
             <div className="p-6">
-              {/* FORM SECTIONS - keeping all existing sections exactly as they were */}
               {currentSection === 0 && (
                 <div className="space-y-6">
                   <h3 className="text-2xl font-bold text-blue-900 mb-4">PERSONAL INFORMATION</h3>
@@ -694,10 +708,11 @@ ${formData.name}`);
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">If you are restricted by the 90 day rule and are not available for the whole season, please provide written agreement from your team.</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">90 Day Rule Agreement</label>
                     <textarea value={formData.ninetyDayRule} onChange={(e) => updateField('ninetyDayRule', e.target.value)} rows="2" className="w-full px-3 py-2 border border-gray-300 rounded-md" />
                   </div>
-                  <h3 className="text-2xl font-bold text-blue-900 mb-4 mt-8">FUNDING INFORMATION</h3><p className="text-sm text-gray-600 mb-4">Answer these questions completely and truthfully</p>
+                  <h3 className="text-2xl font-bold text-blue-900 mb-4 mt-8">FUNDING INFORMATION</h3>
+                  <p className="text-sm text-gray-600 mb-4">Answer these questions completely and truthfully</p>
                   {fundingQuestions.map(([field, infoField, label]) => (
                     <div key={field} className="space-y-2">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -724,7 +739,8 @@ ${formData.name}`);
 
               {currentSection === 3 && (
                 <div className="space-y-6">
-                  <h3 className="text-2xl font-bold text-blue-900 mb-4">IN YOUR OWN WORDS</h3><div>
+                  <h3 className="text-2xl font-bold text-blue-900 mb-4">IN YOUR OWN WORDS</h3>
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Tell us why you would like to become a Rayner Foundation Rider. How you think the RF could help you at the beginning of your career and just as importantly, how you think you could help the RF from now and throughout your career.
                     </label>
@@ -733,7 +749,7 @@ ${formData.name}`);
                   <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
                     <p className="text-sm text-gray-700">
                       <strong>Submission Instructions:</strong> Once completed, you can email this form to:<br />
-                      <span className="font-mono text-blue-700">applications@rayner.fund AND joscelinryan@hotmail.com</span>
+                      <span className="font-mono text-blue-700">nigelbishop@live.co.uk</span>
                     </p>
                   </div>
                 </div>
@@ -756,11 +772,11 @@ ${formData.name}`);
                 </div>
                 
                 <div className="flex gap-3">
-                  <button onClick={handleDownloadPDF} disabled={isGenerating} className="flex items-center gap-2 px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium disabled:opacity-50">
+                  <button onClick={handleDownloadWord} disabled={isGenerating} className="flex items-center gap-2 px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium disabled:opacity-50">
                     <Download size={18} />
-                    {isGenerating ? 'Generating...' : 'Download PDF'}
+                    {isGenerating ? 'Generating...' : 'Download Word Doc'}
                   </button>
-                  <button onClick={handleEmailWithPDF} disabled={isGenerating} className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50">
+                  <button onClick={handleEmailWithWord} disabled={isGenerating} className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50">
                     <Mail size={18} />
                     {isGenerating ? 'Preparing Email...' : 'Email Application'}
                   </button>
