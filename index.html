@@ -434,11 +434,11 @@
               ['accommodationCharged', 'accommodationChargedInfo', 'Is your accommodation charged? How much?'],
               ['accommodationUpkeep', 'accommodationUpkeepInfo', 'Do you contribute to accommodation upkeep?'],
               ['dailyFood', 'dailyFoodInfo', 'Do you pay for daily food? How much?'],
-              ['travelArrangement', 'travelArrangementInfo', 'How will you travel to races? Who pays?'],
+              ['travelArrangement', 'travelArrangementInfo', 'Will you have to pay to travel to races? Provide details'],
               ['equipment', 'equipmentInfo', 'Do you receive equipment from team?'],
               ['wageSalary', 'wageSalaryInfo', 'Do you receive a wage/salary? How much per annum?'],
-              ['repayment', 'repaymentInfo', 'Expected to repay any support?'],
-              ['otherSupport', 'otherSupportInfo', 'Any other income or support sources?']
+              ['repayment', 'repaymentInfo', 'Are you expected to repay any support?'],
+              ['otherSupport', 'otherSupportInfo', 'Do yu have any other income or support sources?']
             ].map(([field, infoField, label]) => `
               <div class="funding-question">
                 <div class="funding-label">${label}</div>
@@ -463,7 +463,7 @@
             <div class="field-value" style="min-height: 120px; padding: 15px; line-height: 1.6;">${formData.personalStatement || '&nbsp;'}</div>
             
             <div class="info-box">
-              <p style="margin: 0; font-size: 10pt;"><strong>Submission Instructions:</strong> Once completed, you can email this form to: <strong>nigelbishop@live.co.uk</strong></p>
+              <p style="margin: 0; font-size: 10pt;"><strong>Submission Instructions:</strong> Once completed, you can email this form to: <strong>applications@rayner.fund AND joscelinryan@hotmail.com</strong></p>
             </div>
           </body>
           </html>
@@ -531,7 +531,7 @@ Mobile: ${formData.mobile}
 Best regards,
 ${formData.name}`);
             
-            window.location.href = `mailto:nigelbishop@live.co.uk?subject=${subject}&body=${body}`;
+            window.location.href = `mailto:applications@rayner.fund;joscelinryan@hotmail.com?subject=${subject}&body=${body}`;
             setIsGenerating(false);
           }, 1000);
         } catch (error) {
@@ -553,11 +553,11 @@ ${formData.name}`);
         ['accommodationCharged', 'accommodationChargedInfo', 'Is your accommodation charged? How much?'],
         ['accommodationUpkeep', 'accommodationUpkeepInfo', 'Do you contribute to accommodation upkeep?'],
         ['dailyFood', 'dailyFoodInfo', 'Do you pay for daily food? How much?'],
-        ['travelArrangement', 'travelArrangementInfo', 'How will you travel to races? Who pays?'],
+        ['travelArrangement', 'travelArrangementInfo', 'Will you have to pay to travel to races? Provide details'],
         ['equipment', 'equipmentInfo', 'Do you receive equipment from team?'],
         ['wageSalary', 'wageSalaryInfo', 'Do you receive a wage/salary? How much per annum?'],
-        ['repayment', 'repaymentInfo', 'Expected to repay any support?'],
-        ['otherSupport', 'otherSupportInfo', 'Any other income or support sources?']
+        ['repayment', 'repaymentInfo', 'Are you expected to repay any support?'],
+        ['otherSupport', 'otherSupportInfo', 'Do you have any other income or support sources?']
       ];
 
       return (
@@ -792,7 +792,7 @@ ${formData.name}`);
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">90 Day Rule Agreement</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">If you are restricted by the 90 Day Rule and are not available for the whole season, please provide written agreement from your team.</label>
                     <textarea value={formData.ninetyDayRule} onChange={(e) => updateField('ninetyDayRule', e.target.value)} rows="2" className="w-full px-3 py-2 border border-gray-300 rounded-md" />
                   </div>
                   <h3 className="text-2xl font-bold text-blue-900 mb-4 mt-8">FUNDING INFORMATION</h3>
@@ -876,3 +876,4 @@ ${formData.name}`);
   </script>
 </body>
 </html>
+
