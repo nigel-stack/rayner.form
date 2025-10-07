@@ -552,11 +552,12 @@ ${formData.name}`);
         y -= (height + 6); 
         const fy = y;
         page.drawRectangle({x:M, y:fy, width:width, height:height, borderColor:rgb(.7,.7,.7), borderWidth:.8});
-        const tf = form.createTextField(name); 
+        
+        const tf = form.createTextField(name);
         if (multiline) tf.enableMultiline();
-        tf.setText(val ? String(val) : "");
-        tf.updateAppearances(font);
         tf.addToPage(page, {x:M+2, y:fy+2, width:width-4, height:height-4});
+        if (val) tf.setText(String(val));
+        tf.updateAppearances(font);
       };
       
       const table = (title, headers, rows, prefix, widths=[80,260,110,80]) => {
@@ -584,9 +585,9 @@ ${formData.name}`);
             page.drawRectangle({x:x[i], y:top-rowH, width:widths[i], height:rowH, borderColor:rgb(.7,.7,.7), borderWidth:.8});
             const tf = form.createTextField(names[i]);
             if (i === 1) tf.enableMultiline();
-            tf.setText(vals && vals[i] != null ? String(vals[i]) : "");
-            tf.updateAppearances(font);
             tf.addToPage(page, {x:x[i]+2, y:top-rowH+2, width:widths[i]-4, height:rowH-4});
+            if (vals && vals[i] != null) tf.setText(String(vals[i]));
+            tf.updateAppearances(font);
           }
           
           y = top - rowH;
@@ -646,11 +647,15 @@ ${formData.name}`);
       const sigY = y - 10, sigW = 280;
       page.drawText("Applicant signature:", { x:M, y:sigY+24, size:10, font:bold });
       page.drawRectangle({ x:M, y:sigY, width:sigW, height:20, borderColor:rgb(.7,.7,.7), borderWidth:.8 });
-      form.createTextField("signature").addToPage(page, { x:M+2, y:sigY+2, width:sigW-4, height:16 });
+      const sigField = form.createTextField("signature");
+      sigField.addToPage(page, { x:M+2, y:sigY+2, width:sigW-4, height:16 });
+      sigField.updateAppearances(font);
       
       page.drawText("Date:", { x:M+sigW+20, y:sigY+24, size:10, font:bold });
       page.drawRectangle({ x:M+sigW+20, y:sigY, width:100, height:20, borderColor:rgb(.7,.7,.7), borderWidth:.8 });
-      form.createTextField("signatureDate").addToPage(page, { x:M+sigW+22, y:sigY+2, width:96, height:16 });
+      const dateField = form.createTextField("signatureDate");
+      dateField.addToPage(page, { x:M+sigW+22, y:sigY+2, width:96, height:16 });
+      dateField.updateAppearances(font);
 
       console.log('PDF created successfully, generating blob...');
       const pdfBytes = await pdf.save();
