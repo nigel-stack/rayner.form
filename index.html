@@ -482,7 +482,7 @@ ${formData.name}`);
       const borderColor = rgb(0.80, 0.82, 0.85);
       const labelColor = rgb(0.25, 0.25, 0.30);
       const headerBg = rgb(0.96, 0.97, 0.98);
-      const LABEL_SIZE = 8, FIELD_HEIGHT = 22;
+      const LABEL_SIZE = 8, FIELD_HEIGHT = 22, FIELD_FONT_SIZE = 9;
 
       const newPage = () => { page = pdf.addPage([A4W, A4H]); y = A4H - 40; };
       const ensure = (h) => { if (y - h < 50) newPage(); };
@@ -494,7 +494,7 @@ ${formData.name}`);
       };
 
       const singleField = (label, name, val = "", opt = {}) => {
-        const { width = A4W - M*2, height = FIELD_HEIGHT, multiline = false } = opt;
+        const { width = A4W - M*2, height = FIELD_HEIGHT, multiline = false, fontSize = FIELD_FONT_SIZE } = opt;
         ensure(height + 24); y -= 12;
         page.drawText(label, { x: M, y, size: LABEL_SIZE, font: helvetica, color: labelColor });
         y -= height + 2;
@@ -503,6 +503,7 @@ ${formData.name}`);
         if (multiline) f.enableMultiline();
         f.addToPage(page, { x: M + 2, y: y + 2, width: width - 4, height: height - 4 });
         if (val) f.setText(String(val));
+        f.setFontSize(fontSize);
         f.updateAppearances(helvetica);
         y -= 4;
       };
@@ -520,6 +521,7 @@ ${formData.name}`);
           const field = form.createTextField(f.name);
           field.addToPage(page, { x: x + 2, y: fy + 2, width: fieldW - 4, height: FIELD_HEIGHT - 4 });
           if (f.val) field.setText(String(f.val));
+          field.setFontSize(FIELD_FONT_SIZE);
           field.updateAppearances(helvetica);
         });
         y = startY - 12 - FIELD_HEIGHT - 6;
@@ -535,6 +537,7 @@ ${formData.name}`);
         const ynF = form.createTextField(yn);
         ynF.addToPage(page, { x: M + 2, y: fy + 2, width: ynW - 4, height: FIELD_HEIGHT - 4 });
         if (ynV) ynF.setText(String(ynV));
+        ynF.setFontSize(FIELD_FONT_SIZE);
         ynF.updateAppearances(helvetica);
         const detX = M + ynW + 10, detW = A4W - M*2 - ynW - 10;
         page.drawText("Further Information", { x: detX, y: fy + FIELD_HEIGHT + 2, size: 7, font: helvetica, color: labelColor });
@@ -543,6 +546,7 @@ ${formData.name}`);
         detF.enableMultiline();
         detF.addToPage(page, { x: detX + 2, y: fy + 2, width: detW - 4, height: FIELD_HEIGHT - 4 });
         if (detV) detF.setText(String(detV));
+        detF.setFontSize(8);
         detF.updateAppearances(helvetica);
         y -= 6;
       };
@@ -569,6 +573,7 @@ ${formData.name}`);
             if (i === 1) f.enableMultiline();
             f.addToPage(page, { x: xp + 2, y: y - rowH + 2, width: w - 4, height: rowH - 4 });
             if (vals && vals[i]) f.setText(String(vals[i]));
+            f.setFontSize(i === 1 ? 7 : 8);
             f.updateAppearances(helvetica);
             xp += w;
           });
@@ -591,7 +596,7 @@ ${formData.name}`);
         { label: "Date of Birth *", name: "dob", val: f.dob },
         { label: "Place of Birth", name: "pob", val: f.pob }
       ]);
-      singleField("Address *", "address", f.address, { height: 32, multiline: true });
+      singleField("Address *", "address", f.address, { height: 32, multiline: true, fontSize: 8 });
       fieldRow([
         { label: "Home Telephone", name: "homeTel", val: f.homeTelephone },
         { label: "Mobile *", name: "mobile", val: f.mobile },
@@ -620,7 +625,7 @@ ${formData.name}`);
         { label: "Passport Expiry", name: "passportExpiry", val: f.passportExpiry }
       ]);
       singleField("Second Nationality?", "secondNat", f.secondNationality);
-      singleField("EU Arrangements", "euArrangements", f.euArrangements, { height: 28, multiline: true });
+      singleField("EU Arrangements", "euArrangements", f.euArrangements, { height: 28, multiline: true, fontSize: 8 });
 
       ensure(180);
       sectionHeader("RACING ACHIEVEMENTS");
@@ -644,7 +649,7 @@ ${formData.name}`);
         { label: "Team Email", name: "teamEmail", val: f.teamEmail },
         { label: "Team Category", name: "teamCategory", val: f.teamCategory }
       ]);
-      singleField("90 day rule agreement", "ninetyDay", f.ninetyDayRule, { height: 32, multiline: true });
+      singleField("90 day rule agreement", "ninetyDay", f.ninetyDayRule, { height: 32, multiline: true, fontSize: 8 });
 
       ensure(400);
       sectionHeader("FUNDING INFORMATION");
@@ -667,7 +672,7 @@ ${formData.name}`);
       y -= 4;
       page.drawText("Why you want to be a Rayner Foundation Rider and how you can help the RF", { x: M, y, size: 7.5, font: helvetica, color: labelColor });
       y -= 4;
-      singleField("Personal Statement", "statement", f.personalStatement, { height: 100, multiline: true });
+      singleField("Personal Statement", "statement", f.personalStatement, { height: 100, multiline: true, fontSize: 8 });
 
       ensure(70);
       sectionHeader("DECLARATION");
@@ -681,6 +686,7 @@ ${formData.name}`);
       page.drawRectangle({ x: M, y, width: sigW, height: FIELD_HEIGHT, borderColor, borderWidth: 0.75, color: fieldBg });
       const sig = form.createTextField("signature");
       sig.addToPage(page, { x: M + 2, y: y + 2, width: sigW - 4, height: FIELD_HEIGHT - 4 });
+      sig.setFontSize(FIELD_FONT_SIZE);
       sig.updateAppearances(helvetica);
       
       const dateX = M + sigW + gap;
@@ -688,6 +694,7 @@ ${formData.name}`);
       page.drawRectangle({ x: dateX, y, width: dateW, height: FIELD_HEIGHT, borderColor, borderWidth: 0.75, color: fieldBg });
       const dt = form.createTextField("signatureDate");
       dt.addToPage(page, { x: dateX + 2, y: y + 2, width: dateW - 4, height: FIELD_HEIGHT - 4 });
+      dt.setFontSize(FIELD_FONT_SIZE);
       dt.updateAppearances(helvetica);
 
       const pdfBytes = await pdf.save();
