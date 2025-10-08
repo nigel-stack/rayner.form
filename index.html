@@ -64,7 +64,6 @@
         }));
       };
 
-      // Convert form data to the format expected by buildFillablePDF
       const convertFormDataForPDF = () => {
         return {
           name: formData.name,
@@ -84,13 +83,35 @@
           teamContactEmail: formData.teamEmail,
           teamCategory: formData.teamCategory,
           ninetyDayRule: formData.ninetyDayRule,
+          accommodationProvided: formData.accommodationProvided,
+          accommodationProvidedInfo: formData.accommodationProvidedInfo,
+          accommodationCharged: formData.accommodationCharged,
+          accommodationChargedInfo: formData.accommodationChargedInfo,
+          accommodationUpkeep: formData.accommodationUpkeep,
+          accommodationUpkeepInfo: formData.accommodationUpkeepInfo,
+          dailyFood: formData.dailyFood,
+          dailyFoodInfo: formData.dailyFoodInfo,
+          travelArrangement: formData.travelArrangement,
+          travelArrangementInfo: formData.travelArrangementInfo,
+          equipment: formData.equipment,
+          equipmentInfo: formData.equipmentInfo,
+          wageSalary: formData.wageSalary,
+          wageSalaryInfo: formData.wageSalaryInfo,
+          repayment: formData.repayment,
+          repaymentInfo: formData.repaymentInfo,
+          otherSupport: formData.otherSupport,
+          otherSupportInfo: formData.otherSupportInfo,
           inYourOwnWords: formData.personalStatement
         };
       };
 
-      const handleDownloadPDF = async () => { await generateFilledPdf(formData); };
+      const handleDownloadPDF = async () => {
+        setIsGenerating(true);
+        try {
+          if (typeof PDFLib === 'undefined') {
+            throw new Error('PDF library not loaded. Please refresh the page and try again.');
+          }
           
-          // Check if buildFillablePDF exists
           if (typeof window.buildFillablePDF !== 'function') {
             throw new Error('PDF generation function not available. Please refresh the page.');
           }
@@ -120,12 +141,10 @@
         setIsGenerating(true);
         
         try {
-          // Check if PDFLib is loaded
           if (typeof PDFLib === 'undefined') {
             throw new Error('PDF library not loaded. Please refresh the page and try again.');
           }
           
-          // Check if buildFillablePDF exists
           if (typeof window.buildFillablePDF !== 'function') {
             throw new Error('PDF generation function not available. Please refresh the page.');
           }
@@ -504,7 +523,6 @@ ${formData.name}`);
   </script>
 
   <script>
-    // Fillable PDF generator using pdf-lib
     window.buildFillablePDF = async function(formData) {
       try {
         console.log('Starting PDF generation...');
@@ -525,14 +543,12 @@ ${formData.name}`);
         const form = pdf.getForm();
         let y = A4H - 80;
 
-        // Consistent professional colors
         const navy = rgb(0.11, 0.22, 0.54);
         const fieldBg = rgb(1, 1, 1);
         const borderColor = rgb(0.80, 0.82, 0.85);
         const labelColor = rgb(0.25, 0.25, 0.30);
         const headerBg = rgb(0.96, 0.97, 0.98);
 
-        // Consistent font size
         const LABEL_SIZE = 8;
         const FIELD_HEIGHT = 22;
 
@@ -616,7 +632,6 @@ ${formData.name}`);
           y -= 30;
           const fy = y;
           
-          // Y/N box
           const ynW = 45;
           page.drawText("Y/N", { x: M, y: fy + FIELD_HEIGHT + 2, size: 7, font: helvetica, color: labelColor });
           page.drawRectangle({
@@ -628,7 +643,6 @@ ${formData.name}`);
           if (ynVal) ynField.setText(String(ynVal));
           ynField.updateAppearances(helvetica);
           
-          // Details box
           const detX = M + ynW + 10;
           const detW = A4W - M*2 - ynW - 10;
           page.drawText("Further Information", { x: detX, y: fy + FIELD_HEIGHT + 2, size: 7, font: helvetica, color: labelColor });
@@ -660,7 +674,6 @@ ${formData.name}`);
           const rowH = 20;
           let xp = M;
           
-          // Header
           colW.forEach((w, i) => {
             page.drawRectangle({
               x: xp, y: y - 14, width: w, height: 14,
@@ -671,7 +684,6 @@ ${formData.name}`);
           });
           y -= 14;
           
-          // Rows
           const addRow = (vals, idx) => {
             ensure(rowH + 2);
             xp = M;
@@ -697,7 +709,6 @@ ${formData.name}`);
           y -= 10;
         };
 
-        // HEADER
         page.drawRectangle({ x: 0, y: A4H - 70, width: A4W, height: 70, color: navy });
         page.drawText("THE RAYNER FOUNDATION", {
           x: M, y: A4H - 32, size: 20, font: helveticaBold, color: rgb(1, 1, 1)
@@ -708,7 +719,6 @@ ${formData.name}`);
 
         const f = formData || {};
 
-        // SECTION 1
         sectionHeader("PERSONAL INFORMATION");
         fieldRow([
           { label: "Full Name *", name: "name", val: f.name || "" },
@@ -717,36 +727,35 @@ ${formData.name}`);
         ]);
         singleField("Address *", "address", f.address || "", { height: 32, multiline: true });
         fieldRow([
-          { label: "Home Telephone", name: "homeTel", val: "" },
+          { label: "Home Telephone", name: "homeTel", val: f.homeTelephone || "" },
           { label: "Mobile *", name: "mobile", val: f.phone || "" },
           { label: "Email *", name: "email", val: f.email || "" }
         ]);
         fieldRow([
-          { label: "Current Team", name: "currentTeam", val: "" },
-          { label: "BC Membership No", name: "bcMembership", val: "" }
+          { label: "Current Team", name: "currentTeam", val: f.currentTeam || "" },
+          { label: "BC Membership No", name: "bcMembership", val: f.bcMembership || "" }
         ]);
         fieldRow([
-          { label: "UCI Number", name: "uciNumber", val: "" },
-          { label: "BC Ranking Category", name: "bcRanking", val: "" },
-          { label: "World Ranking", name: "worldRanking", val: "" }
+          { label: "UCI Number", name: "uciNumber", val: f.uciNumber || "" },
+          { label: "BC Ranking Category", name: "bcRanking", val: f.bcRanking || "" },
+          { label: "World Ranking", name: "worldRanking", val: f.worldRanking || "" }
         ]);
         fieldRow([
-          { label: "Coach Name", name: "coachName", val: "" },
-          { label: "Coach Contact", name: "coachContact", val: "" }
+          { label: "Coach Name", name: "coachName", val: f.coachName || "" },
+          { label: "Coach Contact", name: "coachContact", val: f.coachContact || "" }
         ]);
         fieldRow([
-          { label: "Agent Name", name: "agentName", val: "" },
-          { label: "Agent Contact", name: "agentContact", val: "" }
+          { label: "Agent Name", name: "agentName", val: f.agentName || "" },
+          { label: "Agent Contact", name: "agentContact", val: f.agentContact || "" }
         ]);
         fieldRow([
-          { label: "National Insurance No", name: "ni", val: "" },
+          { label: "National Insurance No", name: "ni", val: f.nationalInsurance || "" },
           { label: "Passport Number", name: "passportNo", val: f.passportNo || "" },
           { label: "Passport Expiry", name: "passportExpiry", val: f.passportExpiry || "" }
         ]);
-        singleField("Second Nationality?", "secondNat", "");
+        singleField("Second Nationality?", "secondNat", f.secondNationality || "");
         singleField("EU Arrangements (if applicable)", "euArrangements", f.euArrangements || "", { height: 28, multiline: true });
 
-        // SECTION 2
         ensure(180);
         sectionHeader("RACING ACHIEVEMENTS");
         const recent = (f.resultsByCategory || []).map(r => [r?.date || "", r?.competition || "", r?.category || "", r?.placing || ""]);
@@ -757,7 +766,6 @@ ${formData.name}`);
         while (career.length < 3) career.push(["","","",""]);
         resultTable("Best 3 Career Achievements", null, ["Date", "Competition", "Status", "Placing"], career, "career");
 
-        // SECTION 3
         ensure(160);
         sectionHeader("PLACEMENT INFORMATION");
         fieldRow([
@@ -766,14 +774,13 @@ ${formData.name}`);
         ]);
         singleField("Team Location", "teamLocation", f.teamCountry || "");
         fieldRow([
-          { label: "Team Phone", name: "teamPhone", val: "" },
+          { label: "Team Phone", name: "teamPhone", val: f.teamPhone || "" },
           { label: "Team Email", name: "teamEmail", val: f.teamContactEmail || "" },
           { label: "Team Category", name: "teamCategory", val: f.teamCategory || "" }
         ]);
         singleField("If restricted by 90 day rule, provide written agreement from team", "ninetyDay", f.ninetyDayRule || "", { height: 32, multiline: true });
 
-        // FUNDING INFORMATION - ENSURE THIS IS INCLUDED
-        ensure(400); // Make sure we have enough space or start new page
+        ensure(400);
         sectionHeader("FUNDING INFORMATION");
         y -= 4;
         page.drawText("Answer these questions completely and truthfully", {
@@ -791,7 +798,6 @@ ${formData.name}`);
         fundingRow("Will you be expected to repay any support costs?", "f8yn", "f8det", f.repayment || "", f.repaymentInfo || "");
         fundingRow("Other income or support sources? Details", "f9yn", "f9det", f.otherSupport || "", f.otherSupportInfo || "");
 
-        // SECTION 4
         ensure(140);
         sectionHeader("IN YOUR OWN WORDS");
         y -= 4;
@@ -801,7 +807,6 @@ ${formData.name}`);
         y -= 4;
         singleField("Personal Statement", "statement", f.inYourOwnWords || "", { height: 100, multiline: true });
 
-        // DECLARATION
         ensure(70);
         sectionHeader("DECLARATION");
         y -= 4;
@@ -835,64 +840,5 @@ ${formData.name}`);
       }
     };
   </script>
-<script>
-
-  // === Begin injected PDF population (web-match v4) ===
-  async function generateFilledPdf(formData) {
-    const templateUrl = 'Rayner_Application_Template_v4.pdf'; // hosted alongside this HTML
-    const pdfBytes = await fetch(templateUrl).then(r => r.arrayBuffer());
-    const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-    const form = pdfDoc.getForm();
-
-    const setField = (name, val) => {
-      const f = (() => { try { return form.getField(name); } catch { return null; } })();
-      if (!f) return;
-      try { f.setText(String(val ?? '')); }
-      catch { try { f.select(String(val ?? '')); } catch(_) {} }
-    };
-
-    const simpleKeys = [
-      "name","dob","pob","address","homeTelephone","mobile","email",
-      "currentTeam","bcMembership","uciNumber","bcRanking","worldRanking",
-      "coachName","coachContact","agentName","agentContact",
-      "nationalInsurance","passportNo","passportExpiry","secondNationality","euArrangements",
-      "teamName","teamContact","teamLocation","teamPhone","teamEmail","teamCategory","ninetyDayRule",
-      "accommodationProvided","accommodationProvidedInfo",
-      "accommodationCharged","accommodationChargedInfo",
-      "accommodationUpkeep","accommodationUpkeepInfo",
-      "dailyFood","dailyFoodInfo",
-      "travelArrangement","travelArrangementInfo",
-      "equipment","equipmentInfo",
-      "wageSalary","wageSalaryInfo",
-      "repayment","repaymentInfo",
-      "otherSupport","otherSupportInfo",
-      "personalStatement"
-    ];
-    simpleKeys.forEach(k => setField(k, formData[k]));
-
-    for (let i = 0; i < 10; i++) {
-      const r = (formData.recentResults && formData.recentResults[i]) || {};
-      ["date","competition","category","placing"].forEach(col => {
-        setField(`recentResults.${i}.${col}`, r[col]);
-      });
-    }
-    for (let i = 0; i < 3; i++) {
-      const r = (formData.careerResults && formData.careerResults[i]) || {};
-      ["date","competition","status","placing"].forEach(col => {
-        setField(`careerResults.${i}.${col}`, r[col]);
-      });
-    }
-
-    form.updateFieldAppearances(PDFLib.StandardFonts.Helvetica);
-    const out = await pdfDoc.save();
-    const blob = new Blob([out], { type: 'application/pdf' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `Rayner_Application_${(formData.name||'form').replace(/\s+/g,'_')}.pdf`;
-    document.body.appendChild(a); a.click(); a.remove();
-  }
-  // === End injected PDF population ===
-
-</script>
 </body>
 </html>
