@@ -834,7 +834,9 @@ ${formData.name}`);
         throw error;
       }
     };
-  
+  </script>
+<script>
+
   // === Begin injected PDF population (web-match v4) ===
   async function generateFilledPdf(formData) {
     const templateUrl = 'Rayner_Application_Template_v4.pdf'; // hosted alongside this HTML
@@ -890,6 +892,7 @@ ${formData.name}`);
     document.body.appendChild(a); a.click(); a.remove();
   }
   // === End injected PDF population ===
+
 </script>
 </body>
 </html>
