@@ -8,7 +8,6 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </head>
 <body style="margin: 0; padding: 0; background: #f9fafb;">
   <div id="root"></div>
@@ -404,21 +403,6 @@
         <div class="field-value" style="white-space: pre-wrap; min-height: 150px;">${f.personalStatement || ''}</div>
       </div>
     </div>
-
-    <div class="section">
-      <div class="section-title">DECLARATION</div>
-      <p style="font-size: 12px;">I confirm that the information provided in this form is accurate to the best of my knowledge.</p>
-      <div class="field-row">
-        <div class="field">
-          <div class="field-label">Signature</div>
-          <div class="field-value" style="min-height: 40px;"></div>
-        </div>
-        <div class="field">
-          <div class="field-label">Date</div>
-          <div class="field-value" style="min-height: 40px;"></div>
-        </div>
-      </div>
-    </div>
   </div>
 </body>
 </html>`;
@@ -779,11 +763,11 @@ NOTE: The attached HTML file can be opened in any web browser and printed direct
                 <div className="flex gap-3">
                   <button onClick={handleDownloadPDF} disabled={isGenerating} className="flex items-center gap-2 px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium disabled:opacity-50">
                     <Download size={18} />
-                    {isGenerating ? 'Generating...' : 'Download PDF'}
+                    Download Form
                   </button>
                   <button onClick={handleEmailWithPDF} disabled={isGenerating} className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50">
                     <Mail size={18} />
-                    {isGenerating ? 'Preparing Email...' : 'Email Application'}
+                    Email Application
                   </button>
                 </div>
               </div>
@@ -795,244 +779,6 @@ NOTE: The attached HTML file can be opened in any web browser and printed direct
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<RaynerFoundationForm />);
-  </script>
-
-  <script>
-    window.buildFillablePDF = async function(formData) {
-      const { PDFDocument, StandardFonts, rgb } = PDFLib;
-      const A4W = 595.28, A4H = 841.89, M = 40;
-      const pdf = await PDFDocument.create();
-      const helvetica = await pdf.embedFont(StandardFonts.Helvetica);
-      const helveticaBold = await pdf.embedFont(StandardFonts.HelveticaBold);
-      let page = pdf.addPage([A4W, A4H]);
-      const form = pdf.getForm();
-      let y = A4H - 80;
-
-      const navy = rgb(0.11, 0.22, 0.54);
-      const fieldBg = rgb(1, 1, 1);
-      const borderColor = rgb(0.80, 0.82, 0.85);
-      const labelColor = rgb(0.25, 0.25, 0.30);
-      const headerBg = rgb(0.96, 0.97, 0.98);
-      const LABEL_SIZE = 8, FIELD_HEIGHT = 22, FIELD_FONT_SIZE = 9;
-
-      const newPage = () => { page = pdf.addPage([A4W, A4H]); y = A4H - 40; };
-      const ensure = (h) => { if (y - h < 50) newPage(); };
-      
-      const sectionHeader = (title) => {
-        ensure(30); y -= 24;
-        page.drawText(title, { x: M, y, size: 11, font: helveticaBold, color: navy });
-        y -= 12;
-      };
-
-      const singleField = (label, name, val = "", opt = {}) => {
-        const { width = A4W - M*2, height = FIELD_HEIGHT, multiline = false, fontSize = FIELD_FONT_SIZE } = opt;
-        ensure(height + 24); y -= 12;
-        page.drawText(label, { x: M, y, size: LABEL_SIZE, font: helvetica, color: labelColor });
-        y -= height + 2;
-        page.drawRectangle({ x: M, y, width, height, borderColor, borderWidth: 0.75, color: fieldBg });
-        const f = form.createTextField(name);
-        if (multiline) f.enableMultiline();
-        f.addToPage(page, { x: M + 2, y: y + 2, width: width - 4, height: height - 4 });
-        f.setFontSize(fontSize);
-        f.setText(val || "");
-        f.updateAppearances(helvetica);
-        y -= 4;
-      };
-
-      const fieldRow = (fields) => {
-        const totalW = A4W - M*2, gap = 12;
-        const fieldW = (totalW - gap * (fields.length - 1)) / fields.length;
-        ensure(46);
-        const startY = y;
-        fields.forEach((f, i) => {
-          const x = M + i * (fieldW + gap);
-          page.drawText(f.label, { x, y: startY - 12, size: LABEL_SIZE, font: helvetica, color: labelColor });
-          const fy = startY - 12 - FIELD_HEIGHT - 2;
-          page.drawRectangle({ x, y: fy, width: fieldW, height: FIELD_HEIGHT, borderColor, borderWidth: 0.75, color: fieldBg });
-          const field = form.createTextField(f.name);
-          field.addToPage(page, { x: x + 2, y: fy + 2, width: fieldW - 4, height: FIELD_HEIGHT - 4 });
-          field.setFontSize(FIELD_FONT_SIZE);
-          field.setText(f.val || "");
-          field.updateAppearances(helvetica);
-        });
-        y = startY - 12 - FIELD_HEIGHT - 6;
-      };
-
-      const fundingRow = (q, yn, det, ynV = "", detV = "") => {
-        ensure(52); y -= 10;
-        page.drawText(q, { x: M, y, size: LABEL_SIZE, font: helvetica, color: labelColor });
-        y -= 30;
-        const fy = y, ynW = 45;
-        page.drawText("Y/N", { x: M, y: fy + FIELD_HEIGHT + 2, size: 7, font: helvetica, color: labelColor });
-        page.drawRectangle({ x: M, y: fy, width: ynW, height: FIELD_HEIGHT, borderColor, borderWidth: 0.75, color: fieldBg });
-        const ynF = form.createTextField(yn);
-        ynF.addToPage(page, { x: M + 2, y: fy + 2, width: ynW - 4, height: FIELD_HEIGHT - 4 });
-        ynF.setFontSize(FIELD_FONT_SIZE);
-        ynF.setText(ynV || "");
-        ynF.updateAppearances(helvetica);
-        const detX = M + ynW + 10, detW = A4W - M*2 - ynW - 10;
-        page.drawText("Further Information", { x: detX, y: fy + FIELD_HEIGHT + 2, size: 7, font: helvetica, color: labelColor });
-        page.drawRectangle({ x: detX, y: fy, width: detW, height: FIELD_HEIGHT, borderColor, borderWidth: 0.75, color: fieldBg });
-        const detF = form.createTextField(det);
-        detF.enableMultiline();
-        detF.addToPage(page, { x: detX + 2, y: fy + 2, width: detW - 4, height: FIELD_HEIGHT - 4 });
-        detF.setFontSize(8);
-        detF.setText(detV || "");
-        detF.updateAppearances(helvetica);
-        y -= 6;
-      };
-
-      const resultTable = (title, sub, headers, rows, prefix) => {
-        ensure(120); y -= 18;
-        page.drawText(title, { x: M, y, size: 10, font: helveticaBold, color: navy });
-        if (sub) { y -= 10; page.drawText(sub, { x: M, y, size: 7, font: helvetica, color: labelColor }); }
-        y -= 14;
-        const colW = [65, 250, 92, 72], rowH = 20;
-        let xp = M;
-        colW.forEach((w, i) => {
-          page.drawRectangle({ x: xp, y: y - 14, width: w, height: 14, color: headerBg, borderColor, borderWidth: 0.75 });
-          page.drawText(headers[i], { x: xp + 3, y: y - 9, size: 7.5, font: helveticaBold, color: labelColor });
-          xp += w;
-        });
-        y -= 14;
-        const addRow = (vals, idx) => {
-          ensure(rowH + 2); xp = M;
-          const names = headers.map((h, i) => `${prefix}_${idx}_${i}`);
-          colW.forEach((w, i) => {
-            page.drawRectangle({ x: xp, y: y - rowH, width: w, height: rowH, borderColor, borderWidth: 0.75, color: fieldBg });
-            const f = form.createTextField(names[i]);
-            if (i === 1) f.enableMultiline();
-            f.addToPage(page, { x: xp + 2, y: y - rowH + 2, width: w - 4, height: rowH - 4 });
-            f.setFontSize(i === 1 ? 7 : 8);
-            f.setText((vals && vals[i]) ? String(vals[i]) : "");
-            f.updateAppearances(helvetica);
-            xp += w;
-          });
-          y -= rowH;
-        };
-        rows.forEach((r, i) => addRow(r, i));
-        for (let i = 0; i < 2; i++) addRow(["","","",""], `extra${i}`);
-        y -= 10;
-      };
-
-      page.drawRectangle({ x: 0, y: A4H - 70, width: A4W, height: 70, color: navy });
-      page.drawText("THE RAYNER FOUNDATION", { x: M, y: A4H - 32, size: 20, font: helveticaBold, color: rgb(1, 1, 1) });
-      page.drawText("RIDER APPLICATION FORM 2026", { x: M, y: A4H - 50, size: 11, font: helvetica, color: rgb(0.85, 0.87, 0.90) });
-
-      const f = formData || {};
-      
-      sectionHeader("PERSONAL INFORMATION");
-      fieldRow([
-        { label: "Full Name *", name: "name", val: f.name },
-        { label: "Date of Birth *", name: "dob", val: f.dob },
-        { label: "Place of Birth", name: "pob", val: f.pob }
-      ]);
-      singleField("Address *", "address", f.address, { height: 32, multiline: true, fontSize: 8 });
-      fieldRow([
-        { label: "Home Telephone", name: "homeTel", val: f.homeTelephone },
-        { label: "Mobile *", name: "mobile", val: f.mobile },
-        { label: "Email *", name: "email", val: f.email }
-      ]);
-      fieldRow([
-        { label: "Current Team", name: "currentTeam", val: f.currentTeam },
-        { label: "BC Membership No", name: "bcMembership", val: f.bcMembership }
-      ]);
-      fieldRow([
-        { label: "UCI Number", name: "uciNumber", val: f.uciNumber },
-        { label: "BC Ranking Category", name: "bcRanking", val: f.bcRanking },
-        { label: "World Ranking", name: "worldRanking", val: f.worldRanking }
-      ]);
-      fieldRow([
-        { label: "Coach Name", name: "coachName", val: f.coachName },
-        { label: "Coach Contact", name: "coachContact", val: f.coachContact }
-      ]);
-      fieldRow([
-        { label: "Agent Name", name: "agentName", val: f.agentName },
-        { label: "Agent Contact", name: "agentContact", val: f.agentContact }
-      ]);
-      fieldRow([
-        { label: "National Insurance No", name: "ni", val: f.nationalInsurance },
-        { label: "Passport Number", name: "passportNo", val: f.passportNo },
-        { label: "Passport Expiry", name: "passportExpiry", val: f.passportExpiry }
-      ]);
-      singleField("Second Nationality?", "secondNat", f.secondNationality);
-      singleField("EU Arrangements", "euArrangements", f.euArrangements, { height: 28, multiline: true, fontSize: 8 });
-
-      ensure(180);
-      sectionHeader("RACING ACHIEVEMENTS");
-      const recent = (f.resultsByCategory || []).map(r => [r?.date || "", r?.competition || "", r?.category || "", r?.placing || ""]);
-      while (recent.length < 5) recent.push(["","","",""]);
-      resultTable("Last 12 Months", "Best 10 results in order of success", ["Date", "Competition", "Category", "Placing"], recent, "recent");
-      
-      const career = (f.resultsByStatus || []).map(r => [r?.date || "", r?.competition || "", r?.status || "", r?.placing || ""]);
-      while (career.length < 3) career.push(["","","",""]);
-      resultTable("Best 3 Career Achievements", null, ["Date", "Competition", "Status", "Placing"], career, "career");
-
-      ensure(160);
-      sectionHeader("PLACEMENT INFORMATION");
-      fieldRow([
-        { label: "Team Name", name: "teamName", val: f.teamName },
-        { label: "Team Contact", name: "teamContact", val: f.teamContact }
-      ]);
-      singleField("Team Location", "teamLocation", f.teamLocation);
-      fieldRow([
-        { label: "Team Phone", name: "teamPhone", val: f.teamPhone },
-        { label: "Team Email", name: "teamEmail", val: f.teamEmail },
-        { label: "Team Category", name: "teamCategory", val: f.teamCategory }
-      ]);
-      singleField("90 day rule agreement", "ninetyDay", f.ninetyDayRule, { height: 32, multiline: true, fontSize: 8 });
-
-      ensure(400);
-      sectionHeader("FUNDING INFORMATION");
-      y -= 4;
-      page.drawText("Answer these questions completely and truthfully", { x: M, y, size: 7.5, font: helvetica, color: labelColor });
-      y -= 4;
-      
-      fundingRow("Is your accommodation provided?", "f1yn", "f1det", f.accommodationProvided, f.accommodationProvidedInfo);
-      fundingRow("Is your accommodation charged? How much?", "f2yn", "f2det", f.accommodationCharged, f.accommodationChargedInfo);
-      fundingRow("Do you contribute to accommodation upkeep?", "f3yn", "f3det", f.accommodationUpkeep, f.accommodationUpkeepInfo);
-      fundingRow("Do you pay for daily food? How much?", "f4yn", "f4det", f.dailyFood, f.dailyFoodInfo);
-      fundingRow("Travel to races? Details", "f5yn", "f5det", f.travelArrangement, f.travelArrangementInfo);
-      fundingRow("Receive equipment from team?", "f6yn", "f6det", f.equipment, f.equipmentInfo);
-      fundingRow("Receive wage/salary? Amount per annum?", "f7yn", "f7det", f.wageSalary, f.wageSalaryInfo);
-      fundingRow("Expected to repay support costs?", "f8yn", "f8det", f.repayment, f.repaymentInfo);
-      fundingRow("Other income or support? Details", "f9yn", "f9det", f.otherSupport, f.otherSupportInfo);
-
-      ensure(140);
-      sectionHeader("IN YOUR OWN WORDS");
-      y -= 4;
-      page.drawText("Why you want to be a Rayner Foundation Rider and how you can help the RF", { x: M, y, size: 7.5, font: helvetica, color: labelColor });
-      y -= 4;
-      singleField("Personal Statement", "statement", f.personalStatement, { height: 100, multiline: true, fontSize: 8 });
-
-      ensure(70);
-      sectionHeader("DECLARATION");
-      y -= 4;
-      page.drawText("I confirm that the information provided is accurate to the best of my knowledge.", { x: M, y, size: LABEL_SIZE, font: helvetica, color: labelColor });
-      y -= 22;
-      
-      const sigW = 220, dateW = 100, gap = 20;
-      page.drawText("Signature:", { x: M, y, size: LABEL_SIZE, font: helvetica, color: labelColor });
-      y -= 24;
-      page.drawRectangle({ x: M, y, width: sigW, height: FIELD_HEIGHT, borderColor, borderWidth: 0.75, color: fieldBg });
-      const sig = form.createTextField("signature");
-      sig.addToPage(page, { x: M + 2, y: y + 2, width: sigW - 4, height: FIELD_HEIGHT - 4 });
-      sig.setFontSize(FIELD_FONT_SIZE);
-      sig.setText("");
-      sig.updateAppearances(helvetica);
-      
-      const dateX = M + sigW + gap;
-      page.drawText("Date:", { x: dateX, y: y + 24, size: LABEL_SIZE, font: helvetica, color: labelColor });
-      page.drawRectangle({ x: dateX, y, width: dateW, height: FIELD_HEIGHT, borderColor, borderWidth: 0.75, color: fieldBg });
-      const dt = form.createTextField("signatureDate");
-      dt.addToPage(page, { x: dateX + 2, y: y + 2, width: dateW - 4, height: FIELD_HEIGHT - 4 });
-      dt.setFontSize(FIELD_FONT_SIZE);
-      dt.setText("");
-      dt.updateAppearances(helvetica);
-
-      const pdfBytes = await pdf.save();
-      return new Blob([pdfBytes], { type: "application/pdf" });
-    };
   </script>
 </body>
 </html>
