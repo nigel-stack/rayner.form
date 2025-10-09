@@ -24,6 +24,43 @@
     .print-value { white-space: pre-wrap; padding: 6px 8px; min-height: 28px; line-height: 1.4; color: #111827; font-size: 14px; border-radius: 6px; }
     .print-value.table { padding: 6px; min-height: 24px; font-size: 13px; }
   </style>
+
+  <style>
+    /* A4 Export Fixes */
+    .a4-holder {
+      width: 190mm;                 /* page width (210mm) - 2 * 10mm margins */
+      min-height: 277mm;            /* page height (297mm) - 2 * 10mm margins */
+      padding: 10mm;
+      box-sizing: border-box;
+      background: #ffffff;
+    }
+    .a4-holder * { box-sizing: border-box; max-width: 100%; }
+    /* Tame oversized Tailwind containers on export to avoid overflow */
+    .a4-holder .container,
+    .a4-holder .max-w-screen-xl,
+    .a4-holder .max-w-7xl,
+    .a4-holder .max-w-6xl,
+    .a4-holder .max-w-5xl,
+    .a4-holder .max-w-4xl,
+    .a4-holder .max-w-3xl,
+    .a4-holder .max-w-2xl,
+    .a4-holder .max-w-xl,
+    .a4-holder .max-w-lg,
+    .a4-holder .max-w-md,
+    .a4-holder .max-w-sm { max-width: 100% !important; width: 100% !important; }
+    /* Ensure tables wrap gracefully */
+    .a4-holder table { table-layout: fixed; width: 100%; }
+    .a4-holder th, .a4-holder td { word-wrap: break-word; }
+    /* Print setup */
+    @media print {
+      @page { size: A4; margin: 10mm; }
+      .page-break { page-break-after: always; }
+      .avoid-break { page-break-inside: avoid; }
+    }
+    .print-value { white-space: pre-wrap; padding: 6px 8px; min-height: 28px; line-height: 1.4; color: #111827; font-size: 14px; border-radius: 6px; }
+    .print-value.table { padding: 6px; min-height: 24px; font-size: 13px; }
+  </style>
+
 </head>
 <body>
   <div id="root"></div>
@@ -855,10 +892,14 @@ ${formData.name}`);
     };
   </script>
 
+
+
 <script>
 async function exportA4Secure() {
   const formRoot = document.querySelector('#root');
   if (!formRoot) { alert('Form container not found.'); return; }
+
+  // Clone live DOM and turn inputs into static text so the snapshot mirrors the completed form
   const work = formRoot.cloneNode(true);
   const replaceField = (el, value) => {
     const span = document.createElement('div');
@@ -875,36 +916,41 @@ async function exportA4Secure() {
   work.querySelectorAll('textarea').forEach(t => replaceField(t, t.value));
   work.querySelectorAll('select').forEach(s => replaceField(s, s.options[s.selectedIndex]?.text || s.value));
 
+  // Wrap in a sized holder that fits inside A4 margins
   const holder = document.createElement('div');
-  holder.style.width = '210mm'; holder.style.minHeight = '297mm'; holder.style.padding = '12mm';
-  holder.style.boxSizing = 'border-box'; holder.style.background = '#fff';
-  holder.appendChild(work); document.body.appendChild(holder);
+  holder.className = 'a4-holder';
+  holder.appendChild(work);
+  document.body.appendChild(holder);
 
+  // Multipage-safe html2pdf configuration
   const opt = {
-    margin: [0,0,0,0],
-    filename: 'Rayner_Application_A4.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak: { mode: ['css', 'legacy'] }
+    margin:       [0, 0, 0, 0],                      // margins handled by holder width + jsPDF margins
+    filename:     'Rayner_Application_A4.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0, windowWidth: holder.scrollWidth },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak:    { mode: ['css', 'legacy'] }        // allow natural breaks & CSS hints
   };
+
   await html2pdf().set(opt).from(holder).save();
+
   holder.remove();
 }
 
+// Add a button to trigger export, next to existing actions
 window.addEventListener('DOMContentLoaded', () => {
-  // Add the export button near existing actions
-  const footer = document.querySelector('.border-t.bg-gray-50') || document.body;
+  const bar = document.querySelector('.border-t.bg-gray-50') || document.body;
   if (!document.getElementById('export-a4-btn')) {
     const btn = document.createElement('button');
     btn.id = 'export-a4-btn';
     btn.textContent = 'Export A4 PDF (secure)';
     btn.className = 'flex items-center gap-2 px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium';
     btn.onclick = exportA4Secure;
-    const row = footer.querySelector('.flex.gap-3:last-child') || footer;
-    (row.appendChild ? row : footer).appendChild(btn);
+    const actionRow = bar.querySelector('.flex.gap-3:last-child') || bar;
+    (actionRow.appendChild ? actionRow : bar).appendChild(btn);
   }
 });
 </script>
+
 </body>
 </html>
