@@ -9,60 +9,8 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <style>
-    body { margin: 0; padding: 0; background: #f9fafb; }
-  </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-  <style>
-    /* A4 Print Styles */
-    @media print {
-      @page { size: A4; margin: 12mm; }
-      .avoid-break { page-break-inside: avoid; }
-      .page-break { page-break-after: always; }
-    }
-    .print-value { white-space: pre-wrap; padding: 6px 8px; min-height: 28px; line-height: 1.4; color: #111827; font-size: 14px; border-radius: 6px; }
-    .print-value.table { padding: 6px; min-height: 24px; font-size: 13px; }
-  </style>
-
-  <style>
-    /* A4 Export Fixes */
-    .a4-holder {
-      width: 190mm;                 /* page width (210mm) - 2 * 10mm margins */
-      min-height: 277mm;            /* page height (297mm) - 2 * 10mm margins */
-      padding: 10mm;
-      box-sizing: border-box;
-      background: #ffffff;
-    }
-    .a4-holder * { box-sizing: border-box; max-width: 100%; }
-    /* Tame oversized Tailwind containers on export to avoid overflow */
-    .a4-holder .container,
-    .a4-holder .max-w-screen-xl,
-    .a4-holder .max-w-7xl,
-    .a4-holder .max-w-6xl,
-    .a4-holder .max-w-5xl,
-    .a4-holder .max-w-4xl,
-    .a4-holder .max-w-3xl,
-    .a4-holder .max-w-2xl,
-    .a4-holder .max-w-xl,
-    .a4-holder .max-w-lg,
-    .a4-holder .max-w-md,
-    .a4-holder .max-w-sm { max-width: 100% !important; width: 100% !important; }
-    /* Ensure tables wrap gracefully */
-    .a4-holder table { table-layout: fixed; width: 100%; }
-    .a4-holder th, .a4-holder td { word-wrap: break-word; }
-    /* Print setup */
-    @media print {
-      @page { size: A4; margin: 10mm; }
-      .page-break { page-break-after: always; }
-      .avoid-break { page-break-inside: avoid; }
-    }
-    .print-value { white-space: pre-wrap; padding: 6px 8px; min-height: 28px; line-height: 1.4; color: #111827; font-size: 14px; border-radius: 6px; }
-    .print-value.table { padding: 6px; min-height: 24px; font-size: 13px; }
-  </style>
-
 </head>
-<body>
+<body style="margin: 0; padding: 0; background: #f9fafb;">
   <div id="root"></div>
 
   <script type="text/babel">
@@ -113,116 +61,405 @@
         }));
       };
 
-      // Convert form data to the format expected by buildFillablePDF
-      const convertFormDataForPDF = () => {
-        return {
-          name: formData.name,
-          dob: formData.dob,
-          nationality: formData.pob,
-          address: formData.address,
-          email: formData.email,
-          phone: formData.mobile,
-          passportNo: formData.passportNo,
-          passportExpiry: formData.passportExpiry,
-          euArrangements: formData.euArrangements,
-          resultsByCategory: formData.recentResults.filter(r => r.date || r.competition),
-          resultsByStatus: formData.careerResults.filter(r => r.date || r.competition),
-          teamName: formData.teamName,
-          teamCountry: formData.teamLocation,
-          teamContactName: formData.teamContact,
-          teamContactEmail: formData.teamEmail,
-          teamCategory: formData.teamCategory,
-          ninetyDayRule: formData.ninetyDayRule,
-          inYourOwnWords: formData.personalStatement
+      const handleDownloadPDF = async () => {
+        // Generate HTML version for printing
+        const htmlContent = generateHTMLForm();
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        
+        // Open in new window for printing
+        const printWindow = window.open(url, '_blank');
+        printWindow.onload = () => {
+          setTimeout(() => {
+            printWindow.print();
+          }, 250);
         };
       };
 
-      const handleDownloadPDF = async () => {
-        setIsGenerating(true);
-        
-        try {
-          // Check if PDFLib is loaded
-          if (typeof PDFLib === 'undefined') {
-            throw new Error('PDF library not loaded. Please refresh the page and try again.');
-          }
-          
-          // Check if buildFillablePDF exists
-          if (typeof window.buildFillablePDF !== 'function') {
-            throw new Error('PDF generation function not available. Please refresh the page.');
-          }
-          
-          const pdfData = convertFormDataForPDF();
-          console.log('Generating PDF with data:', pdfData);
-          
-          const blob = await window.buildFillablePDF(pdfData);
-          
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = `Rayner_Application_${formData.name.replace(/\s+/g, '_') || 'Form'}_2026.pdf`;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          
-          setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-        } catch (error) {
-          console.error('PDF Error:', error);
-          alert(`Error generating PDF: ${error.message}\n\nPlease check the console for details.`);
-        } finally {
-          setIsGenerating(false);
-        }
+      const generateHTMLForm = () => {
+        const f = formData;
+        return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Rayner Foundation Application - ${f.name}</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      padding: 20px;
+      background: white;
+    }
+    .container { 
+      max-width: 800px; 
+      margin: 0 auto; 
+      background: white;
+    }
+    .header { 
+      background: #1e3a8a; 
+      color: white; 
+      padding: 30px; 
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .header h1 { margin: 0; font-size: 28px; }
+    .header h2 { margin: 10px 0 0 0; font-size: 18px; font-weight: normal; }
+    .section { 
+      margin-bottom: 30px; 
+      page-break-inside: avoid;
+    }
+    .section-title { 
+      background: #1e3a8a; 
+      color: white; 
+      padding: 10px 15px; 
+      font-size: 16px; 
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    .field { 
+      margin-bottom: 15px; 
+    }
+    .field-label { 
+      font-size: 11px; 
+      color: #666; 
+      font-weight: bold;
+      margin-bottom: 3px;
+    }
+    .field-value { 
+      padding: 8px; 
+      border: 1px solid #ddd; 
+      background: #f9f9f9;
+      min-height: 20px;
+      font-size: 13px;
+    }
+    .field-row { 
+      display: flex; 
+      gap: 15px; 
+      margin-bottom: 15px;
+    }
+    .field-row .field { 
+      flex: 1; 
+      margin-bottom: 0;
+    }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-bottom: 15px;
+      font-size: 11px;
+    }
+    th, td { 
+      border: 1px solid #ddd; 
+      padding: 8px; 
+      text-align: left;
+    }
+    th { 
+      background: #f0f0f0; 
+      font-weight: bold;
+    }
+    .funding-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background: #f9f9f9;
+    }
+    .funding-question {
+      flex: 2;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .funding-yn {
+      flex: 0 0 50px;
+      font-size: 13px;
+    }
+    .funding-details {
+      flex: 3;
+      font-size: 12px;
+    }
+    @media print {
+      body { margin: 0; }
+      .container { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>THE RAYNER FOUNDATION</h1>
+      <h2>RIDER APPLICATION FORM 2026</h2>
+    </div>
+
+    <div class="section">
+      <div class="section-title">PERSONAL INFORMATION</div>
+      <div class="field-row">
+        <div class="field">
+          <div class="field-label">Full Name *</div>
+          <div class="field-value">${f.name || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Date of Birth *</div>
+          <div class="field-value">${f.dob || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Place of Birth</div>
+          <div class="field-value">${f.pob || ''}</div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">Address *</div>
+        <div class="field-value">${f.address || ''}</div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <div class="field-label">Home Telephone</div>
+          <div class="field-value">${f.homeTelephone || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Mobile *</div>
+          <div class="field-value">${f.mobile || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Email *</div>
+          <div class="field-value">${f.email || ''}</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <div class="field-label">Current Team</div>
+          <div class="field-value">${f.currentTeam || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">BC Membership No</div>
+          <div class="field-value">${f.bcMembership || ''}</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <div class="field-label">UCI Number</div>
+          <div class="field-value">${f.uciNumber || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">BC Ranking Category</div>
+          <div class="field-value">${f.bcRanking || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">World Ranking</div>
+          <div class="field-value">${f.worldRanking || ''}</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <div class="field-label">Coach Name</div>
+          <div class="field-value">${f.coachName || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Coach Contact</div>
+          <div class="field-value">${f.coachContact || ''}</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <div class="field-label">Agent Name</div>
+          <div class="field-value">${f.agentName || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Agent Contact</div>
+          <div class="field-value">${f.agentContact || ''}</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <div class="field-label">National Insurance No</div>
+          <div class="field-value">${f.nationalInsurance || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Passport No</div>
+          <div class="field-value">${f.passportNo || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Passport Expiry</div>
+          <div class="field-value">${f.passportExpiry || ''}</div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">Second Nationality?</div>
+        <div class="field-value">${f.secondNationality || ''}</div>
+      </div>
+      <div class="field">
+        <div class="field-label">EU Arrangements</div>
+        <div class="field-value">${f.euArrangements || ''}</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">RACING ACHIEVEMENTS - Last 12 Months</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Competition</th>
+            <th>Category</th>
+            <th>Placing</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${f.recentResults.map(r => `
+            <tr>
+              <td>${r.date || ''}</td>
+              <td>${r.competition || ''}</td>
+              <td>${r.category || ''}</td>
+              <td>${r.placing || ''}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">BEST 3 CAREER ACHIEVEMENTS</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Competition</th>
+            <th>Status</th>
+            <th>Placing</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${f.careerResults.map(r => `
+            <tr>
+              <td>${r.date || ''}</td>
+              <td>${r.competition || ''}</td>
+              <td>${r.status || ''}</td>
+              <td>${r.placing || ''}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">PLACEMENT INFORMATION</div>
+      <div class="field-row">
+        <div class="field">
+          <div class="field-label">Team Name</div>
+          <div class="field-value">${f.teamName || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Team Contact</div>
+          <div class="field-value">${f.teamContact || ''}</div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">Team Location</div>
+        <div class="field-value">${f.teamLocation || ''}</div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <div class="field-label">Team Phone</div>
+          <div class="field-value">${f.teamPhone || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Team Email</div>
+          <div class="field-value">${f.teamEmail || ''}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Team Category</div>
+          <div class="field-value">${f.teamCategory || ''}</div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">90 Day Rule Agreement</div>
+        <div class="field-value">${f.ninetyDayRule || ''}</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">FUNDING INFORMATION</div>
+      ${[
+        ['Is your accommodation provided?', f.accommodationProvided, f.accommodationProvidedInfo],
+        ['Is your accommodation charged? How much?', f.accommodationCharged, f.accommodationChargedInfo],
+        ['Do you contribute to accommodation upkeep?', f.accommodationUpkeep, f.accommodationUpkeepInfo],
+        ['Do you pay for daily food? How much?', f.dailyFood, f.dailyFoodInfo],
+        ['Will you have to pay to travel to races?', f.travelArrangement, f.travelArrangementInfo],
+        ['Do you receive equipment from team?', f.equipment, f.equipmentInfo],
+        ['Do you receive a wage/salary? How much per annum?', f.wageSalary, f.wageSalaryInfo],
+        ['Will you be expected to repay any support costs?', f.repayment, f.repaymentInfo],
+        ['Do you have any other income or support sources?', f.otherSupport, f.otherSupportInfo]
+      ].map(([q, yn, details]) => `
+        <div class="funding-row">
+          <div class="funding-question">${q}</div>
+          <div class="funding-yn"><strong>Y/N:</strong> ${yn || ''}</div>
+          <div class="funding-details"><strong>Details:</strong> ${details || ''}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="section">
+      <div class="section-title">IN YOUR OWN WORDS</div>
+      <div class="field">
+        <div class="field-label">Personal Statement</div>
+        <div class="field-value" style="white-space: pre-wrap; min-height: 150px;">${f.personalStatement || ''}</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">DECLARATION</div>
+      <p style="font-size: 12px;">I confirm that the information provided in this form is accurate to the best of my knowledge.</p>
+      <div class="field-row">
+        <div class="field">
+          <div class="field-label">Signature</div>
+          <div class="field-value" style="min-height: 40px;"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">Date</div>
+          <div class="field-value" style="min-height: 40px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
       };
 
       const handleEmailWithPDF = async () => {
-        setIsGenerating(true);
+        const htmlContent = generateHTMLForm();
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
         
-        try {
-          // Check if PDFLib is loaded
-          if (typeof PDFLib === 'undefined') {
-            throw new Error('PDF library not loaded. Please refresh the page and try again.');
-          }
-          
-          // Check if buildFillablePDF exists
-          if (typeof window.buildFillablePDF !== 'function') {
-            throw new Error('PDF generation function not available. Please refresh the page.');
-          }
-          
-          const pdfData = convertFormDataForPDF();
-          console.log('Generating PDF for email with data:', pdfData);
-          
-          const blob = await window.buildFillablePDF(pdfData);
-          
-          const a = document.createElement('a');
-          const filename = `Rayner_Application_${formData.name.replace(/\s+/g, '_') || 'Form'}_2026.pdf`;
-          a.href = URL.createObjectURL(blob);
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          
-          setTimeout(() => {
-            const subject = encodeURIComponent('Rayner Foundation Rider Application 2026 - ' + formData.name);
-            const body = encodeURIComponent(`Dear Rayner Foundation,
+        // Download HTML file
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Rayner_Application_${formData.name.replace(/\s+/g, '_') || 'Form'}.html`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        
+        // Open email with instructions
+        setTimeout(() => {
+          const subject = encodeURIComponent('Rayner Foundation Rider Application 2026 - ' + formData.name);
+          const body = encodeURIComponent(`Dear Rayner Foundation,
 
 Please find attached my completed application form for the Rayner Foundation Rider Programme 2026.
 
-The PDF file "${filename}" should be in your Downloads folder. Please attach it to this email before sending.
+The HTML file has been downloaded to your computer. Please attach it to this email before sending.
 
-Applicant Name: ${formData.name}
+Applicant Details:
+Name: ${formData.name}
 Email: ${formData.email}
 Mobile: ${formData.mobile}
 
 Best regards,
-${formData.name}`);
-            
-            window.location.href = `mailto:applications@rayner.fund;joscelinryan@hotmail.com?subject=${subject}&body=${body}`;
-            URL.revokeObjectURL(a.href);
-            setIsGenerating(false);
-          }, 1000);
-        } catch (error) {
-          console.error('PDF Error:', error);
-          alert(`Error generating PDF: ${error.message}\n\nPlease check the console for details.`);
-          setIsGenerating(false);
-        }
+${formData.name}
+
+---
+NOTE: The attached HTML file can be opened in any web browser and printed directly. It will display exactly as the original form.`);
+          
+          window.location.href = `mailto:applications@rayner.fund,joscelinryan@hotmail.com?subject=${subject}&body=${body}`;
+          URL.revokeObjectURL(url);
+        }, 500);
       };
 
       const sections = [
@@ -556,756 +793,246 @@ ${formData.name}`);
       );
     }
 
-    ReactDOM.render(<RaynerFoundationForm />, document.getElementById('root'));
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<RaynerFoundationForm />);
   </script>
 
   <script>
-    // Fillable PDF generator using pdf-lib
     window.buildFillablePDF = async function(formData) {
-      try {
-        console.log('Starting PDF generation...');
-        
-        if (typeof PDFLib === 'undefined') {
-          throw new Error('PDFLib is not loaded');
-        }
-        
-        const { PDFDocument, StandardFonts, rgb } = PDFLib;
-        console.log('PDFLib loaded successfully');
-        
-        const A4W = 595.28, A4H = 841.89;
-        const M = 40;
-        const pdf = await PDFDocument.create();
-        const helvetica = await pdf.embedFont(StandardFonts.Helvetica);
-        const helveticaBold = await pdf.embedFont(StandardFonts.HelveticaBold);
-        let page = pdf.addPage([A4W, A4H]);
-        const form = pdf.getForm();
-        let y = A4H - 80;
+      const { PDFDocument, StandardFonts, rgb } = PDFLib;
+      const A4W = 595.28, A4H = 841.89, M = 40;
+      const pdf = await PDFDocument.create();
+      const helvetica = await pdf.embedFont(StandardFonts.Helvetica);
+      const helveticaBold = await pdf.embedFont(StandardFonts.HelveticaBold);
+      let page = pdf.addPage([A4W, A4H]);
+      const form = pdf.getForm();
+      let y = A4H - 80;
 
-        // Consistent professional colors
-        const navy = rgb(0.11, 0.22, 0.54);
-        const fieldBg = rgb(1, 1, 1);
-        const borderColor = rgb(0.80, 0.82, 0.85);
-        const labelColor = rgb(0.25, 0.25, 0.30);
-        const headerBg = rgb(0.96, 0.97, 0.98);
+      const navy = rgb(0.11, 0.22, 0.54);
+      const fieldBg = rgb(1, 1, 1);
+      const borderColor = rgb(0.80, 0.82, 0.85);
+      const labelColor = rgb(0.25, 0.25, 0.30);
+      const headerBg = rgb(0.96, 0.97, 0.98);
+      const LABEL_SIZE = 8, FIELD_HEIGHT = 22, FIELD_FONT_SIZE = 9;
 
-        // Consistent font size
-        const LABEL_SIZE = 8;
-        const FIELD_HEIGHT = 22;
+      const newPage = () => { page = pdf.addPage([A4W, A4H]); y = A4H - 40; };
+      const ensure = (h) => { if (y - h < 50) newPage(); };
+      
+      const sectionHeader = (title) => {
+        ensure(30); y -= 24;
+        page.drawText(title, { x: M, y, size: 11, font: helveticaBold, color: navy });
+        y -= 12;
+      };
 
-        const newPage = () => {
-          page = pdf.addPage([A4W, A4H]);
-          y = A4H - 40;
-        };
+      const singleField = (label, name, val = "", opt = {}) => {
+        const { width = A4W - M*2, height = FIELD_HEIGHT, multiline = false, fontSize = FIELD_FONT_SIZE } = opt;
+        ensure(height + 24); y -= 12;
+        page.drawText(label, { x: M, y, size: LABEL_SIZE, font: helvetica, color: labelColor });
+        y -= height + 2;
+        page.drawRectangle({ x: M, y, width, height, borderColor, borderWidth: 0.75, color: fieldBg });
+        const f = form.createTextField(name);
+        if (multiline) f.enableMultiline();
+        f.addToPage(page, { x: M + 2, y: y + 2, width: width - 4, height: height - 4 });
+        f.setFontSize(fontSize);
+        f.setText(val || "");
+        f.updateAppearances(helvetica);
+        y -= 4;
+      };
 
-        const ensure = (needed) => {
-          if (y - needed < 50) newPage();
-        };
-
-        const sectionHeader = (title) => {
-          ensure(30);
-          y -= 24;
-          page.drawText(title, {
-            x: M,
-            y: y,
-            size: 11,
-            font: helveticaBold,
-            color: navy
-          });
-          y -= 12;
-        };
-
-        const singleField = (label, fieldName, value = "", options = {}) => {
-          const { width = A4W - M*2, height = FIELD_HEIGHT, multiline = false } = options;
-          ensure(height + 24);
-          
-          y -= 12;
-          page.drawText(label, { x: M, y: y, size: LABEL_SIZE, font: helvetica, color: labelColor });
-          
-          y -= height + 2;
-          page.drawRectangle({
-            x: M, y: y, width: width, height: height,
-            borderColor: borderColor, borderWidth: 0.75, color: fieldBg
-          });
-          
-          const field = form.createTextField(fieldName);
-          if (multiline) field.enableMultiline();
-          field.addToPage(page, { x: M + 2, y: y + 2, width: width - 4, height: height - 4 });
-          if (value) field.setText(String(value));
+      const fieldRow = (fields) => {
+        const totalW = A4W - M*2, gap = 12;
+        const fieldW = (totalW - gap * (fields.length - 1)) / fields.length;
+        ensure(46);
+        const startY = y;
+        fields.forEach((f, i) => {
+          const x = M + i * (fieldW + gap);
+          page.drawText(f.label, { x, y: startY - 12, size: LABEL_SIZE, font: helvetica, color: labelColor });
+          const fy = startY - 12 - FIELD_HEIGHT - 2;
+          page.drawRectangle({ x, y: fy, width: fieldW, height: FIELD_HEIGHT, borderColor, borderWidth: 0.75, color: fieldBg });
+          const field = form.createTextField(f.name);
+          field.addToPage(page, { x: x + 2, y: fy + 2, width: fieldW - 4, height: FIELD_HEIGHT - 4 });
+          field.setFontSize(FIELD_FONT_SIZE);
+          field.setText(f.val || "");
           field.updateAppearances(helvetica);
-          
-          y -= 4;
-        };
+        });
+        y = startY - 12 - FIELD_HEIGHT - 6;
+      };
 
-        const fieldRow = (fields) => {
-          const totalW = A4W - M*2;
-          const gap = 12;
-          const fieldW = (totalW - gap * (fields.length - 1)) / fields.length;
-          
-          ensure(46);
-          const startY = y;
-          
-          fields.forEach((f, i) => {
-            const x = M + i * (fieldW + gap);
-            page.drawText(f.label, { x: x, y: startY - 12, size: LABEL_SIZE, font: helvetica, color: labelColor });
-            
-            const fy = startY - 12 - FIELD_HEIGHT - 2;
-            page.drawRectangle({
-              x: x, y: fy, width: fieldW, height: FIELD_HEIGHT,
-              borderColor: borderColor, borderWidth: 0.75, color: fieldBg
-            });
-            
-            const field = form.createTextField(f.name);
-            field.addToPage(page, { x: x + 2, y: fy + 2, width: fieldW - 4, height: FIELD_HEIGHT - 4 });
-            if (f.val) field.setText(String(f.val));
-            field.updateAppearances(helvetica);
-          });
-          
-          y = startY - 12 - FIELD_HEIGHT - 6;
-        };
+      const fundingRow = (q, yn, det, ynV = "", detV = "") => {
+        ensure(52); y -= 10;
+        page.drawText(q, { x: M, y, size: LABEL_SIZE, font: helvetica, color: labelColor });
+        y -= 30;
+        const fy = y, ynW = 45;
+        page.drawText("Y/N", { x: M, y: fy + FIELD_HEIGHT + 2, size: 7, font: helvetica, color: labelColor });
+        page.drawRectangle({ x: M, y: fy, width: ynW, height: FIELD_HEIGHT, borderColor, borderWidth: 0.75, color: fieldBg });
+        const ynF = form.createTextField(yn);
+        ynF.addToPage(page, { x: M + 2, y: fy + 2, width: ynW - 4, height: FIELD_HEIGHT - 4 });
+        ynF.setFontSize(FIELD_FONT_SIZE);
+        ynF.setText(ynV || "");
+        ynF.updateAppearances(helvetica);
+        const detX = M + ynW + 10, detW = A4W - M*2 - ynW - 10;
+        page.drawText("Further Information", { x: detX, y: fy + FIELD_HEIGHT + 2, size: 7, font: helvetica, color: labelColor });
+        page.drawRectangle({ x: detX, y: fy, width: detW, height: FIELD_HEIGHT, borderColor, borderWidth: 0.75, color: fieldBg });
+        const detF = form.createTextField(det);
+        detF.enableMultiline();
+        detF.addToPage(page, { x: detX + 2, y: fy + 2, width: detW - 4, height: FIELD_HEIGHT - 4 });
+        detF.setFontSize(8);
+        detF.setText(detV || "");
+        detF.updateAppearances(helvetica);
+        y -= 6;
+      };
 
-        const fundingRow = (question, ynName, detailName, ynVal = "", detVal = "") => {
-          ensure(52);
-          
-          y -= 10;
-          page.drawText(question, { x: M, y: y, size: LABEL_SIZE, font: helvetica, color: labelColor });
-          
-          y -= 30;
-          const fy = y;
-          
-          // Y/N box
-          const ynW = 45;
-          page.drawText("Y/N", { x: M, y: fy + FIELD_HEIGHT + 2, size: 7, font: helvetica, color: labelColor });
-          page.drawRectangle({
-            x: M, y: fy, width: ynW, height: FIELD_HEIGHT,
-            borderColor: borderColor, borderWidth: 0.75, color: fieldBg
-          });
-          const ynField = form.createTextField(ynName);
-          ynField.addToPage(page, { x: M + 2, y: fy + 2, width: ynW - 4, height: FIELD_HEIGHT - 4 });
-          if (ynVal) ynField.setText(String(ynVal));
-          ynField.updateAppearances(helvetica);
-          
-          // Details box
-          const detX = M + ynW + 10;
-          const detW = A4W - M*2 - ynW - 10;
-          page.drawText("Further Information", { x: detX, y: fy + FIELD_HEIGHT + 2, size: 7, font: helvetica, color: labelColor });
-          page.drawRectangle({
-            x: detX, y: fy, width: detW, height: FIELD_HEIGHT,
-            borderColor: borderColor, borderWidth: 0.75, color: fieldBg
-          });
-          const detField = form.createTextField(detailName);
-          detField.enableMultiline();
-          detField.addToPage(page, { x: detX + 2, y: fy + 2, width: detW - 4, height: FIELD_HEIGHT - 4 });
-          if (detVal) detField.setText(String(detVal));
-          detField.updateAppearances(helvetica);
-          
-          y -= 6;
-        };
-
-        const resultTable = (title, subtitle, headers, rows, prefix) => {
-          ensure(120);
-          
-          y -= 18;
-          page.drawText(title, { x: M, y: y, size: 10, font: helveticaBold, color: navy });
-          if (subtitle) {
-            y -= 10;
-            page.drawText(subtitle, { x: M, y: y, size: 7, font: helvetica, color: labelColor });
-          }
-          y -= 14;
-          
-          const colW = [65, 250, 92, 72];
-          const rowH = 20;
-          let xp = M;
-          
-          // Header
+      const resultTable = (title, sub, headers, rows, prefix) => {
+        ensure(120); y -= 18;
+        page.drawText(title, { x: M, y, size: 10, font: helveticaBold, color: navy });
+        if (sub) { y -= 10; page.drawText(sub, { x: M, y, size: 7, font: helvetica, color: labelColor }); }
+        y -= 14;
+        const colW = [65, 250, 92, 72], rowH = 20;
+        let xp = M;
+        colW.forEach((w, i) => {
+          page.drawRectangle({ x: xp, y: y - 14, width: w, height: 14, color: headerBg, borderColor, borderWidth: 0.75 });
+          page.drawText(headers[i], { x: xp + 3, y: y - 9, size: 7.5, font: helveticaBold, color: labelColor });
+          xp += w;
+        });
+        y -= 14;
+        const addRow = (vals, idx) => {
+          ensure(rowH + 2); xp = M;
+          const names = headers.map((h, i) => `${prefix}_${idx}_${i}`);
           colW.forEach((w, i) => {
-            page.drawRectangle({
-              x: xp, y: y - 14, width: w, height: 14,
-              color: headerBg, borderColor: borderColor, borderWidth: 0.75
-            });
-            page.drawText(headers[i], { x: xp + 3, y: y - 9, size: 7.5, font: helveticaBold, color: labelColor });
+            page.drawRectangle({ x: xp, y: y - rowH, width: w, height: rowH, borderColor, borderWidth: 0.75, color: fieldBg });
+            const f = form.createTextField(names[i]);
+            if (i === 1) f.enableMultiline();
+            f.addToPage(page, { x: xp + 2, y: y - rowH + 2, width: w - 4, height: rowH - 4 });
+            f.setFontSize(i === 1 ? 7 : 8);
+            f.setText((vals && vals[i]) ? String(vals[i]) : "");
+            f.updateAppearances(helvetica);
             xp += w;
           });
-          y -= 14;
-          
-          // Rows
-          const addRow = (vals, idx) => {
-            ensure(rowH + 2);
-            xp = M;
-            const names = headers.map((h, i) => `${prefix}_${idx}_${i}`);
-            
-            colW.forEach((w, i) => {
-              page.drawRectangle({
-                x: xp, y: y - rowH, width: w, height: rowH,
-                borderColor: borderColor, borderWidth: 0.75, color: fieldBg
-              });
-              const f = form.createTextField(names[i]);
-              if (i === 1) f.enableMultiline();
-              f.addToPage(page, { x: xp + 2, y: y - rowH + 2, width: w - 4, height: rowH - 4 });
-              if (vals && vals[i]) f.setText(String(vals[i]));
-              f.updateAppearances(helvetica);
-              xp += w;
-            });
-            y -= rowH;
-          };
-          
-          rows.forEach((r, i) => addRow(r, i));
-          for (let i = 0; i < 2; i++) addRow(["","","",""], `extra${i}`);
-          y -= 10;
+          y -= rowH;
         };
+        rows.forEach((r, i) => addRow(r, i));
+        for (let i = 0; i < 2; i++) addRow(["","","",""], `extra${i}`);
+        y -= 10;
+      };
 
-        // HEADER
-        page.drawRectangle({ x: 0, y: A4H - 70, width: A4W, height: 70, color: navy });
-        page.drawText("THE RAYNER FOUNDATION", {
-          x: M, y: A4H - 32, size: 20, font: helveticaBold, color: rgb(1, 1, 1)
-        });
-        page.drawText("RIDER APPLICATION FORM 2026", {
-          x: M, y: A4H - 50, size: 11, font: helvetica, color: rgb(0.85, 0.87, 0.90)
-        });
+      page.drawRectangle({ x: 0, y: A4H - 70, width: A4W, height: 70, color: navy });
+      page.drawText("THE RAYNER FOUNDATION", { x: M, y: A4H - 32, size: 20, font: helveticaBold, color: rgb(1, 1, 1) });
+      page.drawText("RIDER APPLICATION FORM 2026", { x: M, y: A4H - 50, size: 11, font: helvetica, color: rgb(0.85, 0.87, 0.90) });
 
-        const f = formData || {};
+      const f = formData || {};
+      
+      sectionHeader("PERSONAL INFORMATION");
+      fieldRow([
+        { label: "Full Name *", name: "name", val: f.name },
+        { label: "Date of Birth *", name: "dob", val: f.dob },
+        { label: "Place of Birth", name: "pob", val: f.pob }
+      ]);
+      singleField("Address *", "address", f.address, { height: 32, multiline: true, fontSize: 8 });
+      fieldRow([
+        { label: "Home Telephone", name: "homeTel", val: f.homeTelephone },
+        { label: "Mobile *", name: "mobile", val: f.mobile },
+        { label: "Email *", name: "email", val: f.email }
+      ]);
+      fieldRow([
+        { label: "Current Team", name: "currentTeam", val: f.currentTeam },
+        { label: "BC Membership No", name: "bcMembership", val: f.bcMembership }
+      ]);
+      fieldRow([
+        { label: "UCI Number", name: "uciNumber", val: f.uciNumber },
+        { label: "BC Ranking Category", name: "bcRanking", val: f.bcRanking },
+        { label: "World Ranking", name: "worldRanking", val: f.worldRanking }
+      ]);
+      fieldRow([
+        { label: "Coach Name", name: "coachName", val: f.coachName },
+        { label: "Coach Contact", name: "coachContact", val: f.coachContact }
+      ]);
+      fieldRow([
+        { label: "Agent Name", name: "agentName", val: f.agentName },
+        { label: "Agent Contact", name: "agentContact", val: f.agentContact }
+      ]);
+      fieldRow([
+        { label: "National Insurance No", name: "ni", val: f.nationalInsurance },
+        { label: "Passport Number", name: "passportNo", val: f.passportNo },
+        { label: "Passport Expiry", name: "passportExpiry", val: f.passportExpiry }
+      ]);
+      singleField("Second Nationality?", "secondNat", f.secondNationality);
+      singleField("EU Arrangements", "euArrangements", f.euArrangements, { height: 28, multiline: true, fontSize: 8 });
 
-        // SECTION 1
-        sectionHeader("PERSONAL INFORMATION");
-        fieldRow([
-          { label: "Full Name *", name: "name", val: f.name || "" },
-          { label: "Date of Birth *", name: "dob", val: f.dob || "" },
-          { label: "Place of Birth", name: "pob", val: f.nationality || "" }
-        ]);
-        singleField("Address *", "address", f.address || "", { height: 32, multiline: true });
-        fieldRow([
-          { label: "Home Telephone", name: "homeTel", val: "" },
-          { label: "Mobile *", name: "mobile", val: f.phone || "" },
-          { label: "Email *", name: "email", val: f.email || "" }
-        ]);
-        fieldRow([
-          { label: "Current Team", name: "currentTeam", val: "" },
-          { label: "BC Membership No", name: "bcMembership", val: "" }
-        ]);
-        fieldRow([
-          { label: "UCI Number", name: "uciNumber", val: "" },
-          { label: "BC Ranking Category", name: "bcRanking", val: "" },
-          { label: "World Ranking", name: "worldRanking", val: "" }
-        ]);
-        fieldRow([
-          { label: "Coach Name", name: "coachName", val: "" },
-          { label: "Coach Contact", name: "coachContact", val: "" }
-        ]);
-        fieldRow([
-          { label: "Agent Name", name: "agentName", val: "" },
-          { label: "Agent Contact", name: "agentContact", val: "" }
-        ]);
-        fieldRow([
-          { label: "National Insurance No", name: "ni", val: "" },
-          { label: "Passport Number", name: "passportNo", val: f.passportNo || "" },
-          { label: "Passport Expiry", name: "passportExpiry", val: f.passportExpiry || "" }
-        ]);
-        singleField("Second Nationality?", "secondNat", "");
-        singleField("EU Arrangements (if applicable)", "euArrangements", f.euArrangements || "", { height: 28, multiline: true });
+      ensure(180);
+      sectionHeader("RACING ACHIEVEMENTS");
+      const recent = (f.resultsByCategory || []).map(r => [r?.date || "", r?.competition || "", r?.category || "", r?.placing || ""]);
+      while (recent.length < 5) recent.push(["","","",""]);
+      resultTable("Last 12 Months", "Best 10 results in order of success", ["Date", "Competition", "Category", "Placing"], recent, "recent");
+      
+      const career = (f.resultsByStatus || []).map(r => [r?.date || "", r?.competition || "", r?.status || "", r?.placing || ""]);
+      while (career.length < 3) career.push(["","","",""]);
+      resultTable("Best 3 Career Achievements", null, ["Date", "Competition", "Status", "Placing"], career, "career");
 
-        // SECTION 2
-        ensure(180);
-        sectionHeader("RACING ACHIEVEMENTS");
-        const recent = (f.resultsByCategory || []).map(r => [r?.date || "", r?.competition || "", r?.category || "", r?.placing || ""]);
-        while (recent.length < 5) recent.push(["","","",""]);
-        resultTable("Last 12 Months", "Best 10 results in order of success", ["Date", "Competition", "Category", "Placing"], recent, "recent");
-        
-        const career = (f.resultsByStatus || []).map(r => [r?.date || "", r?.competition || "", r?.status || "", r?.placing || ""]);
-        while (career.length < 3) career.push(["","","",""]);
-        resultTable("Best 3 Career Achievements", null, ["Date", "Competition", "Status", "Placing"], career, "career");
+      ensure(160);
+      sectionHeader("PLACEMENT INFORMATION");
+      fieldRow([
+        { label: "Team Name", name: "teamName", val: f.teamName },
+        { label: "Team Contact", name: "teamContact", val: f.teamContact }
+      ]);
+      singleField("Team Location", "teamLocation", f.teamLocation);
+      fieldRow([
+        { label: "Team Phone", name: "teamPhone", val: f.teamPhone },
+        { label: "Team Email", name: "teamEmail", val: f.teamEmail },
+        { label: "Team Category", name: "teamCategory", val: f.teamCategory }
+      ]);
+      singleField("90 day rule agreement", "ninetyDay", f.ninetyDayRule, { height: 32, multiline: true, fontSize: 8 });
 
-        // SECTION 3
-        ensure(160);
-        sectionHeader("PLACEMENT INFORMATION");
-        fieldRow([
-          { label: "Team Name", name: "teamName", val: f.teamName || "" },
-          { label: "Team Contact", name: "teamContact", val: f.teamContactName || "" }
-        ]);
-        singleField("Team Location", "teamLocation", f.teamCountry || "");
-        fieldRow([
-          { label: "Team Phone", name: "teamPhone", val: "" },
-          { label: "Team Email", name: "teamEmail", val: f.teamContactEmail || "" },
-          { label: "Team Category", name: "teamCategory", val: f.teamCategory || "" }
-        ]);
-        singleField("If restricted by 90 day rule, provide written agreement from team", "ninetyDay", f.ninetyDayRule || "", { height: 32, multiline: true });
+      ensure(400);
+      sectionHeader("FUNDING INFORMATION");
+      y -= 4;
+      page.drawText("Answer these questions completely and truthfully", { x: M, y, size: 7.5, font: helvetica, color: labelColor });
+      y -= 4;
+      
+      fundingRow("Is your accommodation provided?", "f1yn", "f1det", f.accommodationProvided, f.accommodationProvidedInfo);
+      fundingRow("Is your accommodation charged? How much?", "f2yn", "f2det", f.accommodationCharged, f.accommodationChargedInfo);
+      fundingRow("Do you contribute to accommodation upkeep?", "f3yn", "f3det", f.accommodationUpkeep, f.accommodationUpkeepInfo);
+      fundingRow("Do you pay for daily food? How much?", "f4yn", "f4det", f.dailyFood, f.dailyFoodInfo);
+      fundingRow("Travel to races? Details", "f5yn", "f5det", f.travelArrangement, f.travelArrangementInfo);
+      fundingRow("Receive equipment from team?", "f6yn", "f6det", f.equipment, f.equipmentInfo);
+      fundingRow("Receive wage/salary? Amount per annum?", "f7yn", "f7det", f.wageSalary, f.wageSalaryInfo);
+      fundingRow("Expected to repay support costs?", "f8yn", "f8det", f.repayment, f.repaymentInfo);
+      fundingRow("Other income or support? Details", "f9yn", "f9det", f.otherSupport, f.otherSupportInfo);
 
-        // FUNDING INFORMATION - ENSURE THIS IS INCLUDED
-        ensure(400); // Make sure we have enough space or start new page
-        sectionHeader("FUNDING INFORMATION");
-        y -= 4;
-        page.drawText("Answer these questions completely and truthfully", {
-          x: M, y: y, size: 7.5, font: helvetica, color: labelColor
-        });
-        y -= 4;
-        
-        fundingRow("Is your accommodation provided?", "f1yn", "f1det", f.accommodationProvided || "", f.accommodationProvidedInfo || "");
-        fundingRow("Is your accommodation charged? How much?", "f2yn", "f2det", f.accommodationCharged || "", f.accommodationChargedInfo || "");
-        fundingRow("Do you contribute to accommodation upkeep?", "f3yn", "f3det", f.accommodationUpkeep || "", f.accommodationUpkeepInfo || "");
-        fundingRow("Do you pay for daily food? How much?", "f4yn", "f4det", f.dailyFood || "", f.dailyFoodInfo || "");
-        fundingRow("Will you have to pay to travel to races? Details", "f5yn", "f5det", f.travelArrangement || "", f.travelArrangementInfo || "");
-        fundingRow("Do you receive equipment from team?", "f6yn", "f6det", f.equipment || "", f.equipmentInfo || "");
-        fundingRow("Do you receive a wage/salary? How much per annum?", "f7yn", "f7det", f.wageSalary || "", f.wageSalaryInfo || "");
-        fundingRow("Will you be expected to repay any support costs?", "f8yn", "f8det", f.repayment || "", f.repaymentInfo || "");
-        fundingRow("Other income or support sources? Details", "f9yn", "f9det", f.otherSupport || "", f.otherSupportInfo || "");
+      ensure(140);
+      sectionHeader("IN YOUR OWN WORDS");
+      y -= 4;
+      page.drawText("Why you want to be a Rayner Foundation Rider and how you can help the RF", { x: M, y, size: 7.5, font: helvetica, color: labelColor });
+      y -= 4;
+      singleField("Personal Statement", "statement", f.personalStatement, { height: 100, multiline: true, fontSize: 8 });
 
-        // SECTION 4
-        ensure(140);
-        sectionHeader("IN YOUR OWN WORDS");
-        y -= 4;
-        page.drawText("Tell us why you would like to become a Rayner Foundation Rider and how you could help the RF", {
-          x: M, y: y, size: 7.5, font: helvetica, color: labelColor
-        });
-        y -= 4;
-        singleField("Personal Statement", "statement", f.inYourOwnWords || "", { height: 100, multiline: true });
+      ensure(70);
+      sectionHeader("DECLARATION");
+      y -= 4;
+      page.drawText("I confirm that the information provided is accurate to the best of my knowledge.", { x: M, y, size: LABEL_SIZE, font: helvetica, color: labelColor });
+      y -= 22;
+      
+      const sigW = 220, dateW = 100, gap = 20;
+      page.drawText("Signature:", { x: M, y, size: LABEL_SIZE, font: helvetica, color: labelColor });
+      y -= 24;
+      page.drawRectangle({ x: M, y, width: sigW, height: FIELD_HEIGHT, borderColor, borderWidth: 0.75, color: fieldBg });
+      const sig = form.createTextField("signature");
+      sig.addToPage(page, { x: M + 2, y: y + 2, width: sigW - 4, height: FIELD_HEIGHT - 4 });
+      sig.setFontSize(FIELD_FONT_SIZE);
+      sig.setText("");
+      sig.updateAppearances(helvetica);
+      
+      const dateX = M + sigW + gap;
+      page.drawText("Date:", { x: dateX, y: y + 24, size: LABEL_SIZE, font: helvetica, color: labelColor });
+      page.drawRectangle({ x: dateX, y, width: dateW, height: FIELD_HEIGHT, borderColor, borderWidth: 0.75, color: fieldBg });
+      const dt = form.createTextField("signatureDate");
+      dt.addToPage(page, { x: dateX + 2, y: y + 2, width: dateW - 4, height: FIELD_HEIGHT - 4 });
+      dt.setFontSize(FIELD_FONT_SIZE);
+      dt.setText("");
+      dt.updateAppearances(helvetica);
 
-        // DECLARATION
-        ensure(70);
-        sectionHeader("DECLARATION");
-        y -= 4;
-        page.drawText("I confirm that the information provided in this form is accurate to the best of my knowledge.", {
-          x: M, y: y, size: LABEL_SIZE, font: helvetica, color: labelColor
-        });
-        y -= 22;
-        
-        const sigW = 220, dateW = 100, gap = 20;
-        page.drawText("Signature:", { x: M, y: y, size: LABEL_SIZE, font: helvetica, color: labelColor });
-        y -= 24;
-        page.drawRectangle({ x: M, y: y, width: sigW, height: FIELD_HEIGHT, borderColor: borderColor, borderWidth: 0.75, color: fieldBg });
-        const sig = form.createTextField("signature");
-        sig.addToPage(page, { x: M + 2, y: y + 2, width: sigW - 4, height: FIELD_HEIGHT - 4 });
-        sig.updateAppearances(helvetica);
-        
-        const dateX = M + sigW + gap;
-        page.drawText("Date:", { x: dateX, y: y + 24, size: LABEL_SIZE, font: helvetica, color: labelColor });
-        page.drawRectangle({ x: dateX, y: y, width: dateW, height: FIELD_HEIGHT, borderColor: borderColor, borderWidth: 0.75, color: fieldBg });
-        const dt = form.createTextField("signatureDate");
-        dt.addToPage(page, { x: dateX + 2, y: y + 2, width: dateW - 4, height: FIELD_HEIGHT - 4 });
-        dt.updateAppearances(helvetica);
-
-        console.log('PDF created successfully');
-        const pdfBytes = await pdf.save();
-        console.log('PDF size:', pdfBytes.length, 'bytes');
-        return new Blob([pdfBytes], { type: "application/pdf" });
-      } catch (error) {
-        console.error('Error in buildFillablePDF:', error);
-        throw error;
-      }
+      const pdfBytes = await pdf.save();
+      return new Blob([pdfBytes], { type: "application/pdf" });
     };
   </script>
-
-
-
-<script>
-async function exportA4Secure() {
-  const formRoot = document.querySelector('#root');
-  if (!formRoot) { alert('Form container not found.'); return; }
-
-  // Clone live DOM and turn inputs into static text so the snapshot mirrors the completed form
-  const work = formRoot.cloneNode(true);
-  const replaceField = (el, value) => {
-    const span = document.createElement('div');
-    span.className = 'print-value';
-    span.textContent = (value ?? '').toString();
-    if (el.closest('td,th')) span.classList.add('table');
-    el.replaceWith(span);
-  };
-  work.querySelectorAll('input').forEach(inp => {
-    const type = (inp.getAttribute('type') || 'text').toLowerCase();
-    if (type === 'checkbox' || type === 'radio') replaceField(inp, inp.checked ? 'Yes' : 'No');
-    else replaceField(inp, inp.value);
-  });
-  work.querySelectorAll('textarea').forEach(t => replaceField(t, t.value));
-  work.querySelectorAll('select').forEach(s => replaceField(s, s.options[s.selectedIndex]?.text || s.value));
-
-  // Wrap in a sized holder that fits inside A4 margins
-  const holder = document.createElement('div');
-  holder.className = 'a4-holder';
-  holder.appendChild(work);
-  document.body.appendChild(holder);
-
-  // Multipage-safe html2pdf configuration
-  const opt = {
-    margin:       [0, 0, 0, 0],                      // margins handled by holder width + jsPDF margins
-    filename:     'Rayner_Application_A4.pdf',
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0, windowWidth: holder.scrollWidth },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak:    { mode: ['css', 'legacy'] }        // allow natural breaks & CSS hints
-  };
-
-  await html2pdf().set(opt).from(holder).save();
-
-  holder.remove();
-}
-
-// Add a button to trigger export, next to existing actions
-window.addEventListener('DOMContentLoaded', () => {
-  const bar = document.querySelector('.border-t.bg-gray-50') || document.body;
-  if (!document.getElementById('export-a4-btn')) {
-    const btn = document.createElement('button');
-    btn.id = 'export-a4-btn';
-    btn.textContent = 'Export A4 PDF (secure)';
-    btn.className = 'flex items-center gap-2 px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium';
-    btn.onclick = exportA4Secure;
-    const actionRow = bar.querySelector('.flex.gap-3:last-child') || bar;
-    (actionRow.appendChild ? actionRow : bar).appendChild(btn);
-  }
-});
-</script>
-
-
-<script>
-function openPrintView() {
-  const root = document.querySelector('#root');
-  if (!root) { alert('Form container not found.'); return; }
-
-  // 1) Clone the filled form and turn controls into static text
-  const work = root.cloneNode(true);
-
-  const replaceField = (el, value) => {
-    const span = document.createElement('div');
-    span.className = 'pv-value';
-    span.textContent = (value ?? '').toString();
-    if (el.closest('td,th')) span.classList.add('pv-cell');
-    el.replaceWith(span);
-  };
-
-  work.querySelectorAll('input').forEach(inp => {
-    const type = (inp.getAttribute('type') || 'text').toLowerCase();
-    if (type === 'checkbox' || type === 'radio') replaceField(inp, inp.checked ? 'Yes' : 'No');
-    else replaceField(inp, inp.value);
-  });
-  work.querySelectorAll('textarea').forEach(t => replaceField(t, t.value));
-  work.querySelectorAll('select').forEach(s => replaceField(s, s.options[s.selectedIndex]?.text || s.value));
-
-  // 2) Build a standalone A4 HTML document
-  const css = `
-    <style>
-      /* Screen layout for the print view */
-      body { margin: 0; padding: 0; background: #f3f4f6; }
-      .pv-wrap { width: 210mm; margin: 0 auto; padding: 12mm 0; }
-      .pv-page { width: 190mm; min-height: 277mm; margin: 0 auto 12mm auto; background: #fff;
-                 padding: 10mm; box-sizing: border-box; border: 1px solid #e5e7eb; border-radius: 6px; }
-      .pv-value { white-space: pre-wrap; color: #111827; font-size: 14px; line-height: 1.4; padding: 6px 8px; }
-      .pv-cell { padding: 4px 6px; font-size: 13px; }
-      /* Avoid elements running off the page */
-      .pv-page * { box-sizing: border-box; max-width: 100% !important; }
-      .pv-page table { table-layout: fixed; width: 100% !important; }
-      .pv-page th, .pv-page td { word-wrap: break-word; }
-      /* Print settings */
-      @media print {
-        @page { size: A4; margin: 10mm; }
-        body { background: #fff; }
-        .pv-wrap { width: auto; padding: 0; }
-        .pv-page { width: auto; min-height: auto; margin: 0 0 10mm 0; border: 0; border-radius: 0; }
-      }
-    </style>`;
-
-  // 3) Split into pages automatically based on natural flow: use multiple .pv-page wrappers
-  //    Strategy: progressively move child nodes into pages until height exceeds threshold.
-  const container = document.createElement('div');
-  container.className = 'pv-wrap';
-
-  let currentPage = document.createElement('div');
-  currentPage.className = 'pv-page';
-  container.appendChild(currentPage);
-
-  const temp = document.createElement('div');
-  temp.style.width = '190mm';
-  temp.style.minHeight = '277mm';
-  temp.style.padding = '0';
-  temp.style.boxSizing = 'border-box';
-  temp.append(...Array.from(work.childNodes));
-
-  // Move children to pages, measuring height as we go
-  // Threshold approximates printable area inside a 10mm margin.
-  const THRESH = 277 * 3.78; // rough px per mm @ ~96dpi CSS pixel density
-  while (temp.firstChild) {
-    currentPage.appendChild(temp.firstChild);
-    // When over threshold, back up the last node(s) to a fresh page
-    if (currentPage.scrollHeight > THRESH) {
-      const last = currentPage.lastChild;
-      currentPage.removeChild(last);
-      const newPage = document.createElement('div');
-      newPage.className = 'pv-page';
-      container.appendChild(newPage);
-      newPage.appendChild(last);
-      currentPage = newPage;
-    }
-  }
-
-  const htmlDoc = `<!doctype html><html><head><meta charset="utf-8"><title>Print View</title>${css}</head><body>
-<script>
-async function sharePrintReadySnapshot() {
-  const root = document.querySelector('#root');
-  if (!root) { alert('Form container not found.'); return; }
-
-  // Clone and convert inputs to static text
-  const work = root.cloneNode(true);
-  const replaceField = (el, value) => {
-    const span = document.createElement('div');
-    span.className = 'pv-value';
-    span.textContent = (value ?? '').toString();
-    if (el.closest('td,th')) span.classList.add('pv-cell');
-    el.replaceWith(span);
-  };
-  work.querySelectorAll('input').forEach(inp => {
-    const type = (inp.getAttribute('type') || 'text').toLowerCase();
-    if (type === 'checkbox' || type === 'radio') replaceField(inp, inp.checked ? 'Yes' : 'No');
-    else replaceField(inp, inp.value);
-  });
-  work.querySelectorAll('textarea').forEach(t => replaceField(t, t.value));
-  work.querySelectorAll('select').forEach(s => replaceField(s, s.options[s.selectedIndex]?.text || s.value));
-
-  // Build standalone A4 HTML with inline CSS so it prints perfectly on recipient side
-  const css = `
-  <style>
-    body { margin: 0; padding: 0; background: #f3f4f6; }
-    .pv-wrap { width: 210mm; margin: 0 auto; padding: 12mm 0; }
-    .pv-page { width: 190mm; min-height: 277mm; margin: 0 auto 12mm auto; background: #fff;
-               padding: 10mm; box-sizing: border-box; border: 1px solid #e5e7eb; border-radius: 6px; }
-    .pv-value { white-space: pre-wrap; color: #111827; font-size: 14px; line-height: 1.4; padding: 6px 8px; }
-    .pv-cell { padding: 4px 6px; font-size: 13px; }
-    .pv-page * { box-sizing: border-box; max-width: 100% !important; }
-    .pv-page table { table-layout: fixed; width: 100% !important; }
-    .pv-page th, .pv-page td { word-wrap: break-word; }
-    @media print {
-      @page { size: A4; margin: 10mm; }
-      body { background: #fff; }
-      .pv-wrap { width: auto; padding: 0; }
-      .pv-page { width: auto; min-height: auto; margin: 0 0 10mm 0; border: 0; border-radius: 0; }
-    }
-  </style>`;
-
-  // Pagination: progressively fill pages to avoid mid-page clipping
-  const wrap = document.createElement('div');
-  wrap.className = 'pv-wrap';
-  let page = document.createElement('div');
-  page.className = 'pv-page';
-  wrap.appendChild(page);
-
-  const temp = document.createElement('div');
-  temp.style.width = '190mm';
-  temp.style.minHeight = '277mm';
-  temp.append(...Array.from(work.childNodes));
-
-  // Threshold for A4 content height in CSS pixels
-  const THRESH = 277 * 3.78; // ~96dpi
-  while (temp.firstChild) {
-    page.appendChild(temp.firstChild);
-    if (page.scrollHeight > THRESH) {
-      const last = page.lastChild;
-      page.removeChild(last);
-      const newPage = document.createElement('div');
-      newPage.className = 'pv-page';
-      wrap.appendChild(newPage);
-      newPage.appendChild(last);
-      page = newPage;
-    }
-  }
-
-  const docHTML = `<!doctype html>
-  <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Rayner Application – Print View</title>
-      ${css}
-    </head>
-    <body></body>
-  </html>`;
-
-  // Create a complete document as a Blob (self-contained .html file)
-  const blob = new Blob([docHTML], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-
-  // Serialize the DOM from 'wrap' into the new HTML's body
-  // We can't write directly to the Blob, so include the content as a separate file step:
-  // Instead, embed the innerHTML into the file by building a full HTML string now.
-  const container = document.createElement('div');
-  container.appendChild(wrap);
-  const finalHTML = docHTML.replace('</body>', wrap.outerHTML + '</body>');
-  const file = new File([finalHTML], 'Rayner_Application_PrintView.html', { type: 'text/html' });
-
-  // Mobile-first: use Web Share API when available (lets user send via Mail/WhatsApp etc.)
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file], title: 'Rayner Application – Print View' });
-      URL.revokeObjectURL(url);
-      return;
-    } catch (e) {
-      // fall back to download if share is cancelled/unavailable
-    }
-  }
-
-  // Desktop / fallback: direct download of the HTML snapshot
-  const dl = document.createElement('a');
-  dl.href = URL.createObjectURL(new Blob([finalHTML], { type: 'text/html' }));
-  dl.download = 'Rayner_Application_PrintView.html';
-  document.body.appendChild(dl); dl.click(); dl.remove();
-}
-window.addEventListener('DOMContentLoaded', () => {
-  const bar = document.querySelector('.border-t.bg-gray-50') || document.body;
-  if (!document.getElementById('share-print-view-btn')) {
-    const btn = document.createElement('button');
-    btn.id = 'share-print-view-btn';
-    btn.textContent = 'Share Print-Ready Form';
-    btn.className = 'flex items-center gap-2 px-6 py-2 bg-fuchsia-600 text-white rounded-lg hover:bg-fuchsia-700 transition-colors font-medium';
-    btn.onclick = sharePrintReadySnapshot;
-    const row = bar.querySelector('.flex.gap-3:last-child') || bar;
-    (row.appendChild ? row : bar).appendChild(btn);
-  }
-});
-</script>
-
-</body></html>`;
-  const w = window.open('', '_blank');
-  if (!w) { alert('Pop-up blocked. Please allow pop-ups for print view.'); return; }
-  w.document.open(); w.document.write(htmlDoc); w.document.close();
-  w.document.body.appendChild(container);
-  w.focus();
-}
-window.addEventListener('DOMContentLoaded', () => {
-  // Add the button next to the existing action buttons
-  const bar = document.querySelector('.border-t.bg-gray-50') || document.body;
-  if (!document.getElementById('open-print-view-btn')) {
-    const btn = document.createElement('button');
-    btn.id = 'open-print-view-btn';
-    btn.textContent = 'Open Print View (A4)';
-    btn.className = 'flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium';
-    btn.onclick = openPrintView;
-    const row = bar.querySelector('.flex.gap-3:last-child') || bar;
-    (row.appendChild ? row : bar).appendChild(btn);
-  }
-});
-</script>
-
-
-<script>
-async function sharePrintReadySnapshot() {
-  const root = document.querySelector('#root');
-  if (!root) { alert('Form container not found.'); return; }
-
-  // Clone and convert inputs to static text
-  const work = root.cloneNode(true);
-  const replaceField = (el, value) => {
-    const span = document.createElement('div');
-    span.className = 'pv-value';
-    span.textContent = (value ?? '').toString();
-    if (el.closest('td,th')) span.classList.add('pv-cell');
-    el.replaceWith(span);
-  };
-  work.querySelectorAll('input').forEach(inp => {
-    const type = (inp.getAttribute('type') || 'text').toLowerCase();
-    if (type === 'checkbox' || type === 'radio') replaceField(inp, inp.checked ? 'Yes' : 'No');
-    else replaceField(inp, inp.value);
-  });
-  work.querySelectorAll('textarea').forEach(t => replaceField(t, t.value));
-  work.querySelectorAll('select').forEach(s => replaceField(s, s.options[s.selectedIndex]?.text || s.value));
-
-  // Build standalone A4 HTML with inline CSS so it prints perfectly on recipient side
-  const css = `
-  <style>
-    body { margin: 0; padding: 0; background: #f3f4f6; }
-    .pv-wrap { width: 210mm; margin: 0 auto; padding: 12mm 0; }
-    .pv-page { width: 190mm; min-height: 277mm; margin: 0 auto 12mm auto; background: #fff;
-               padding: 10mm; box-sizing: border-box; border: 1px solid #e5e7eb; border-radius: 6px; }
-    .pv-value { white-space: pre-wrap; color: #111827; font-size: 14px; line-height: 1.4; padding: 6px 8px; }
-    .pv-cell { padding: 4px 6px; font-size: 13px; }
-    .pv-page * { box-sizing: border-box; max-width: 100% !important; }
-    .pv-page table { table-layout: fixed; width: 100% !important; }
-    .pv-page th, .pv-page td { word-wrap: break-word; }
-    @media print {
-      @page { size: A4; margin: 10mm; }
-      body { background: #fff; }
-      .pv-wrap { width: auto; padding: 0; }
-      .pv-page { width: auto; min-height: auto; margin: 0 0 10mm 0; border: 0; border-radius: 0; }
-    }
-  </style>`;
-
-  // Pagination: progressively fill pages to avoid mid-page clipping
-  const wrap = document.createElement('div');
-  wrap.className = 'pv-wrap';
-  let page = document.createElement('div');
-  page.className = 'pv-page';
-  wrap.appendChild(page);
-
-  const temp = document.createElement('div');
-  temp.style.width = '190mm';
-  temp.style.minHeight = '277mm';
-  temp.append(...Array.from(work.childNodes));
-
-  // Threshold for A4 content height in CSS pixels
-  const THRESH = 277 * 3.78; // ~96dpi
-  while (temp.firstChild) {
-    page.appendChild(temp.firstChild);
-    if (page.scrollHeight > THRESH) {
-      const last = page.lastChild;
-      page.removeChild(last);
-      const newPage = document.createElement('div');
-      newPage.className = 'pv-page';
-      wrap.appendChild(newPage);
-      newPage.appendChild(last);
-      page = newPage;
-    }
-  }
-
-  const docHTML = `<!doctype html>
-  <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Rayner Application – Print View</title>
-      ${css}
-    </head>
-    <body></body>
-  </html>`;
-
-  // Create a complete document as a Blob (self-contained .html file)
-  const blob = new Blob([docHTML], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-
-  // Serialize the DOM from 'wrap' into the new HTML's body
-  // We can't write directly to the Blob, so include the content as a separate file step:
-  // Instead, embed the innerHTML into the file by building a full HTML string now.
-  const container = document.createElement('div');
-  container.appendChild(wrap);
-  const finalHTML = docHTML.replace('</body>', wrap.outerHTML + '</body>');
-  const file = new File([finalHTML], 'Rayner_Application_PrintView.html', { type: 'text/html' });
-
-  // Mobile-first: use Web Share API when available (lets user send via Mail/WhatsApp etc.)
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file], title: 'Rayner Application – Print View' });
-      URL.revokeObjectURL(url);
-      return;
-    } catch (e) {
-      // fall back to download if share is cancelled/unavailable
-    }
-  }
-
-  // Desktop / fallback: direct download of the HTML snapshot
-  const dl = document.createElement('a');
-  dl.href = URL.createObjectURL(new Blob([finalHTML], { type: 'text/html' }));
-  dl.download = 'Rayner_Application_PrintView.html';
-  document.body.appendChild(dl); dl.click(); dl.remove();
-}
-window.addEventListener('DOMContentLoaded', () => {
-  const bar = document.querySelector('.border-t.bg-gray-50') || document.body;
-  if (!document.getElementById('share-print-view-btn')) {
-    const btn = document.createElement('button');
-    btn.id = 'share-print-view-btn';
-    btn.textContent = 'Share Print-Ready Form';
-    btn.className = 'flex items-center gap-2 px-6 py-2 bg-fuchsia-600 text-white rounded-lg hover:bg-fuchsia-700 transition-colors font-medium';
-    btn.onclick = sharePrintReadySnapshot;
-    const row = bar.querySelector('.flex.gap-3:last-child') || bar;
-    (row.appendChild ? row : bar).appendChild(btn);
-  }
-});
-</script>
-
 </body>
 </html>
