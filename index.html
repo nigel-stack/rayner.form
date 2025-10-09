@@ -952,5 +952,108 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+
+<script>
+function openPrintView() {
+  const root = document.querySelector('#root');
+  if (!root) { alert('Form container not found.'); return; }
+
+  // 1) Clone the filled form and turn controls into static text
+  const work = root.cloneNode(true);
+
+  const replaceField = (el, value) => {
+    const span = document.createElement('div');
+    span.className = 'pv-value';
+    span.textContent = (value ?? '').toString();
+    if (el.closest('td,th')) span.classList.add('pv-cell');
+    el.replaceWith(span);
+  };
+
+  work.querySelectorAll('input').forEach(inp => {
+    const type = (inp.getAttribute('type') || 'text').toLowerCase();
+    if (type === 'checkbox' || type === 'radio') replaceField(inp, inp.checked ? 'Yes' : 'No');
+    else replaceField(inp, inp.value);
+  });
+  work.querySelectorAll('textarea').forEach(t => replaceField(t, t.value));
+  work.querySelectorAll('select').forEach(s => replaceField(s, s.options[s.selectedIndex]?.text || s.value));
+
+  // 2) Build a standalone A4 HTML document
+  const css = `
+    <style>
+      /* Screen layout for the print view */
+      body { margin: 0; padding: 0; background: #f3f4f6; }
+      .pv-wrap { width: 210mm; margin: 0 auto; padding: 12mm 0; }
+      .pv-page { width: 190mm; min-height: 277mm; margin: 0 auto 12mm auto; background: #fff;
+                 padding: 10mm; box-sizing: border-box; border: 1px solid #e5e7eb; border-radius: 6px; }
+      .pv-value { white-space: pre-wrap; color: #111827; font-size: 14px; line-height: 1.4; padding: 6px 8px; }
+      .pv-cell { padding: 4px 6px; font-size: 13px; }
+      /* Avoid elements running off the page */
+      .pv-page * { box-sizing: border-box; max-width: 100% !important; }
+      .pv-page table { table-layout: fixed; width: 100% !important; }
+      .pv-page th, .pv-page td { word-wrap: break-word; }
+      /* Print settings */
+      @media print {
+        @page { size: A4; margin: 10mm; }
+        body { background: #fff; }
+        .pv-wrap { width: auto; padding: 0; }
+        .pv-page { width: auto; min-height: auto; margin: 0 0 10mm 0; border: 0; border-radius: 0; }
+      }
+    </style>`;
+
+  // 3) Split into pages automatically based on natural flow: use multiple .pv-page wrappers
+  //    Strategy: progressively move child nodes into pages until height exceeds threshold.
+  const container = document.createElement('div');
+  container.className = 'pv-wrap';
+
+  let currentPage = document.createElement('div');
+  currentPage.className = 'pv-page';
+  container.appendChild(currentPage);
+
+  const temp = document.createElement('div');
+  temp.style.width = '190mm';
+  temp.style.minHeight = '277mm';
+  temp.style.padding = '0';
+  temp.style.boxSizing = 'border-box';
+  temp.append(...Array.from(work.childNodes));
+
+  // Move children to pages, measuring height as we go
+  // Threshold approximates printable area inside a 10mm margin.
+  const THRESH = 277 * 3.78; // rough px per mm @ ~96dpi CSS pixel density
+  while (temp.firstChild) {
+    currentPage.appendChild(temp.firstChild);
+    // When over threshold, back up the last node(s) to a fresh page
+    if (currentPage.scrollHeight > THRESH) {
+      const last = currentPage.lastChild;
+      currentPage.removeChild(last);
+      const newPage = document.createElement('div');
+      newPage.className = 'pv-page';
+      container.appendChild(newPage);
+      newPage.appendChild(last);
+      currentPage = newPage;
+    }
+  }
+
+  const htmlDoc = `<!doctype html><html><head><meta charset="utf-8"><title>Print View</title>${css}</head><body></body></html>`;
+  const w = window.open('', '_blank');
+  if (!w) { alert('Pop-up blocked. Please allow pop-ups for print view.'); return; }
+  w.document.open(); w.document.write(htmlDoc); w.document.close();
+  w.document.body.appendChild(container);
+  w.focus();
+}
+window.addEventListener('DOMContentLoaded', () => {
+  // Add the button next to the existing action buttons
+  const bar = document.querySelector('.border-t.bg-gray-50') || document.body;
+  if (!document.getElementById('open-print-view-btn')) {
+    const btn = document.createElement('button');
+    btn.id = 'open-print-view-btn';
+    btn.textContent = 'Open Print View (A4)';
+    btn.className = 'flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium';
+    btn.onclick = openPrintView;
+    const row = bar.querySelector('.flex.gap-3:last-child') || bar;
+    (row.appendChild ? row : bar).appendChild(btn);
+  }
+});
+</script>
+
 </body>
 </html>
